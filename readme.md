@@ -1,10 +1,12 @@
 # outpost-api-service
 
-This is a simple node.js app which queries information from a mongodb table and publishes it as a read-only public API.
+This is a simple Node.js app which queries information from a MongoDB collection and publishes it as a read-only public API.
+
+It's not useful by itself — it should be used alongside [Outpost](github.com/wearefuturegov/outpost). The API it outputs is consumable by [Scout](github.com/wearefuturegov/scout-x).
 
 ## Running it locally
 
-You need node.js, npm and a working mongodb database available on `localhost:27017`.
+You need Node.js, npm and a working MongoDB database available on `localhost:27017`.
 
 ```
 npm i
