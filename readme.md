@@ -2,7 +2,7 @@
 
 This is a simple Node.js app which queries information from a MongoDB collection and publishes it as a read-only public API.
 
-It's not useful by itself — it should be used alongside [Outpost](github.com/wearefuturegov/outpost). The API it outputs is consumable by [Scout](github.com/wearefuturegov/scout-x).
+It's not useful by itself — it should be used alongside [Outpost](https://github.com/wearefuturegov/outpost). The API it outputs is consumable by [Scout](https://github.com/wearefuturegov/scout-x).
 
 ## Running it locally
 
