@@ -27,7 +27,7 @@ npm start
 ## API parameters
 
 | Parameter     | Description                                                                                                                                                                        | Example                                    |
-|--------  -----|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|--------------------------------------------|
+|---------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|--------------------------------------------|
 | `taxonomies=` | Only returns services in one or more of the supplied taxonomy names                                                                                                                | `taxonomies=8 to 11&taxonomy=Things to do` |
 | `keywords=`   | Find services with a match in the name or description. Also sorts by relevance unless location parameters are also given.                                                          | `keywords=evening gym`                     |
 | `location=`   | Provide a string that can be parsed as a location in the UK. Will be geocoded and used to return results by increasing distance from that point. Overrides the keyword sort order. | `location=Aylesbury`                       |
