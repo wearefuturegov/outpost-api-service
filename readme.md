@@ -6,15 +6,14 @@ It's not useful by itself — it should be used alongside [Outpost](https://gith
 
 ## Running it locally
 
-You need Node.js, npm and a working MongoDB database available on `localhost:27017`.
+You need Node.js, npm and a working MongoDB database [with the right indices](#indexes) available on `localhost:27017`.
 
 ```
 npm i
-npm run create-indices
 npm run dev
 ```
 
-By default it will be on `localhost:4000/api`.
+By default it will be on `localhost:4000/api/v1`.
 
 ## Running it on the web
 
@@ -26,16 +25,21 @@ npm start
 
 ## API parameters
 
-| Parameter     | Description                                                                                                                                                                        | Example                                    |
-|---------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|--------------------------------------------|
-| `taxonomies=` | Only returns services in one or more of the supplied taxonomy names                                                                                                                | `taxonomies=8 to 11&taxonomy=Things to do` |
-| `keywords=`   | Find services with a match in the name or description. Also sorts by relevance unless location parameters are also given.                                                          | `keywords=evening gym`                     |
-| `location=`   | Provide a string that can be parsed as a location in the UK. Will be geocoded and used to return results by increasing distance from that point. Overrides the keyword sort order. | `location=Aylesbury`                       |
-| `lat=&lng=`   | As above, but skip the geocoding step.                                                                                                                                             | `lng=-0.78206&lat=51.612687`               |
+The `/services` endpoint supports the following query parameters: 
+
+| Parameter           | Description                                                                                                                                                                        | Example                                    |
+|---------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|--------------------------------------------|
+| `taxonomies=`       | Only returns services in one or more of the supplied taxonomy names                                                                                                                | `taxonomies=8 to 11&taxonomy=Things to do` |
+| `keywords=`         | Find services with a match in the name or description. Also sorts by relevance unless location parameters are also given.                                                          | `keywords=evening gym`                     |
+| `location=`         r| Provide a string that can be parsed as a location in the UK. Will be geocoded and used to return results by increasing distance from that point. Overrides the keyword sort order. | `location=Aylesbury`                       |
+| `lat=` and `lng=`   | As above, but skip the geocoding step.                                                                                                                                             | `lng=-0.78206&lat=51.612687`               |
 
 ## Configuration
 
-It expects a `MONGODB_URI` environment variable. You can supply this with a `.env` file in the root. It will default to `localhost:27017/outpost_development` otherwise.
+It expects a few environment variables.
+
+- `MONGODB_URI` overrides the default `localhost:27017/outpost_development` MongoDB connection URI.
+- `GOOGLE_API_KEY` used for geocoding from `location=` parameters. Needs the geocoding API enabled.
 
 ### Indexes
 
@@ -46,4 +50,4 @@ db.indexed_services.createIndex({ "service.name": "text", "service.description":
 db.indexed_services.createIndex({ "location.coordinates": "2dsphere" })
 ```
 
-You can cr
+You can create them automatically with the `npm run prepare-indices` command.
