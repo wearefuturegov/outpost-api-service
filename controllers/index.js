@@ -23,30 +23,22 @@ module.exports = {
                 $in: [].concat(req.query.taxonomies)
             }
 
-            let interpreted_location
+            let interpretated_location
+            if(req.query.location && !(req.query.lat && req.query.lng)){
+                let { results } = await geocode(req.query.location)
+                if(results[0]){
+                    interpretated_location = results[0].formatted_address
+                    req.query.lng = results[0].geometry.location.lng, 
+                    req.query.lat = results[0].geometry.location.lat
+                }
+            }
+
             if(req.query.lat && req.query.lng){
                 query["location.geometry"] = {
                     $nearSphere: {
                         $geometry: {
                             type: "Point",
-                            coordinates: [
-                                parseFloat(req.query.lng), 
-                                parseFloat(req.query.lat)
-                            ]
-                        }
-                    }
-                }
-            } else if (req.query.location) {
-                let { results } = await geocode(req.query.location)
-                interpretated_location = results[0].formatted_address
-                query["location.geometry"] = {
-                    $nearSphere: {
-                        $geometry: {
-                            type: "Point",
-                            coordinates: [
-                                results[0].geometry.location.lng, 
-                                results[0].geometry.location.lat
-                            ]
+                            coordinates: [parseFloat(req.query.lng), parseFloat(req.query.lat)]
                         }
                     }
                 }
@@ -73,7 +65,7 @@ module.exports = {
                     services: results.map(result => ({
                         ...result.service,
                         location: result.location,
-                        distance: calculateDistance(query, result.location)
+                        distance: calculateDistance(req.query, result.location)
                     }))
                 }))
                 .catch(e => next(e))
