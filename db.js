@@ -8,7 +8,7 @@ module.exports = {
         MongoClient.connect(uri, { useUnifiedTopology: true })
             .then(client => {
                 db = client.db()
-                cb()
+                cb(db)
             })
             .catch(err => console.error(err))
     },
