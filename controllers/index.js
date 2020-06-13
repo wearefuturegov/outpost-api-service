@@ -1,23 +1,27 @@
 const { calculateDistance, geocode } = require("../lib")
 const { db } = require("../db")
 
+// TODO: only make the first query of keywords AND location params present together
+// if ONLY keyword params present, add a $text block to the query instead
+
 module.exports = {
     index: async (req, res, next) => {
         try{
             const Service = db().collection("indexed_services")
             const perPage = 20
 
-            let ids
-            if(req.query.keywords){
-                const docs = await Service
-                    .find({ $text: { $search: req.query.keywords }})
-                    .toArray()
-                ids = docs.map(doc => doc._id)
-            }
-
             let query = {}
 
-            if(ids) query._id = { $in: ids }
+            if(req.query.keywords){
+                if(req.query.location || req.query.lng || req.query.lat){
+                    const docs = await Service
+                        .find({ $text: { $search: req.query.keywords }})
+                        .toArray()
+                    query._id = { $in: docs.map(doc => doc._id) }
+                } else {
+                    query.$text = { $search: req.query.keywords }
+                }
+            }
 
             if(req.query.taxonomies) query["service.taxonomies.name"] = { 
                 $in: [].concat(req.query.taxonomies)
