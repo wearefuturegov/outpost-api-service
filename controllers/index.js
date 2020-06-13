@@ -1,9 +1,6 @@
 const { calculateDistance, geocode } = require("../lib")
 const { db } = require("../db")
 
-// TODO: only make the first query of keywords AND location params present together
-// if ONLY keyword params present, add a $text block to the query instead
-
 module.exports = {
     index: async (req, res, next) => {
         try{
