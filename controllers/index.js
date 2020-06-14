@@ -9,6 +9,10 @@ module.exports = {
 
             let query = {}
 
+            // parameter aliases
+            req.query.coverage = req.query.location
+            req.query.postcode = req.query.location
+
             if(req.query.keywords){
                 if(req.query.location || req.query.lng || req.query.lat){
                     const docs = await Service
@@ -66,7 +70,7 @@ module.exports = {
                     content: results.map(result => ({
                         ...result.service,
                         location: result.location,
-                        distance: calculateDistance(req.query, result.location)
+                        distance_away: calculateDistance(req.query, result.location)
                     }))
                 }))
                 .catch(e => next(e))
