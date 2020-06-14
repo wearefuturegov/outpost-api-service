@@ -41,9 +41,9 @@ It expects a few environment variables.
 - `MONGODB_URI` overrides the default `localhost:27017/outpost_development` MongoDB connection URI.
 - `GOOGLE_API_KEY` used for geocoding from `location=` parameters. Needs the geocoding API enabled.
 
-### Indexes
+### Indices
 
-It needs the right indexes on the MongoDB collection to enable full-text and geo search. Something like:
+It needs the right indices on the MongoDB collection to enable full-text and geo search. Something like:
 
 ```
 db.indexed_services.createIndex({ "service.name": "text", "service.description": "text" })
