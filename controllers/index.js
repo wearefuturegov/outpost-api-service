@@ -45,6 +45,8 @@ module.exports = {
                 }
             }
 
+            console.log(query)
+
             Promise.all([
                 Service
                     .find(query)
@@ -61,8 +63,8 @@ module.exports = {
                 ]) => res.json({
                     total: count,
                     page: parseInt(req.query.page) || 1,
-                    totalPages: Math.round(count / perPage),
-                    interpretated_location: interpretated_location,
+                    total_pages: Math.round(count / perPage),
+                    interpretated_location,
                     services: results.map(result => ({
                         ...result.service,
                         location: result.location,
