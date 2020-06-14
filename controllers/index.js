@@ -9,10 +9,6 @@ module.exports = {
 
             let query = {}
 
-            // parameter aliases
-            req.query.coverage = req.query.location
-            req.query.postcode = req.query.location
-
             if(req.query.keywords){
                 if(req.query.location || req.query.lng || req.query.lat){
                     const docs = await Service
@@ -24,9 +20,11 @@ module.exports = {
                 }
             }
 
-            if(req.query.taxonomies) query["service.taxonomies.name"] = { 
+            if(req.query.taxonomies) query["service.taxonomies.slug"] = { 
                 $in: [].concat(req.query.taxonomies)
             }
+
+            console.log(req.query)
 
             let interpretated_location
             if(req.query.location && !(req.query.lat && req.query.lng)){
