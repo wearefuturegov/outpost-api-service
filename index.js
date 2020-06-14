@@ -1,8 +1,9 @@
 const express = require("express")
 const cors = require("cors")
 const { connect } = require("./db")
-const server = express()
 const routes = require("./routes")
+
+const server = express()
 
 require("dotenv").config()
 
