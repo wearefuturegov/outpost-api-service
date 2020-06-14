@@ -7,23 +7,28 @@ module.exports = {
             const Service = db().collection("indexed_services")
             const perPage = 20
 
-            let query = {}
+            let pipeline = []
+            let matchStage = {}
 
+            // FULL TEXT SEARCH
             if(req.query.keywords){
                 if(req.query.location || req.query.lng || req.query.lat){
                     const docs = await Service
                         .find({ $text: { $search: req.query.keywords }})
                         .toArray()
-                    query._id = { $in: docs.map(doc => doc._id) }
+                        pipeline.push({
+                            $match: {
+                                _id: { $in: docs.map(doc => doc._id) }
+                            }
+                        })
                 } else {
-                    query.$text = { $search: req.query.keywords }
+                    pipeline.push({
+                        $match: { $text: { $search: req.query.keywords } }
+                    })
                 }
             }
 
-            if(req.query.taxonomies) query["taxonomies.slug"] = { 
-                $in: [].concat(req.query.taxonomies)
-            }
-
+            // GEOCODING
             let interpretated_location
             if(req.query.location && !(req.query.lat && req.query.lng)){
                 let { results } = await geocode(req.query.location)
@@ -34,43 +39,40 @@ module.exports = {
                 }
             }
 
+            // GEONEAR
             if(req.query.lat && req.query.lng){
-                query["locations.geometry"] = {
-                    $nearSphere: {
-                        $geometry: {
+                pipeline.push({
+                    $geoNear: {
+                        near: {
                             type: "Point",
                             coordinates: [parseFloat(req.query.lng), parseFloat(req.query.lat)]
-                        }
+                        },
+                        distanceField: "distance_away"
                     }
-                }
+                })
             }
 
-            Promise.all([
-                Service
-                    .find(query)
-                    .limit(perPage)
-                    .skip((parseInt(req.query.page) - 1) * perPage)
-                    .toArray(),
-                Service
-                    .find(query)
-                    .count()
-            ])
-                .then(([
-                    results,
-                    count
-                ]) => res.json({
-                    page: parseInt(req.query.page) || 1,
-                    totalPages: Math.round(count / perPage),                    
-                    totalElements: count,
-                    interpretated_location,
-                    content: results.map(result => ({
-                        ...result,
-                        distance_away: calculateDistance(req.query, result.locations)
-                    }))
-                }))
-                .catch(e => next(e))
+            // TAXONOMIES
+            if(req.query.taxonomies) pipeline.push({
+                $match: { "service.taxonomies.slug" : { $in: [].concat(req.query.taxonomies) }}
+            })
 
-        } catch(e){
+            // PAGINATION
+            pipeline.push({ $limit: 20 })
+            if(req.query.page) pipeline.push({
+                $skip: (parseInt(req.query.page) - 1) * perPage
+            })
+
+            await Service
+                .aggregate(pipeline)
+                .toArray()
+                .then(results => res.json({
+                    page: parseInt(req.query.page) || 1,
+                    interpretated_location,
+                    content: results
+                }))
+
+        } catch(e) {
             next(e)
         }
     },
