@@ -1,8 +1,10 @@
-# outpost-api-service
+# Outpost API service
 
-This is a simple Node.js app which queries information from a MongoDB collection and publishes it as a read-only public API.
+This is [Outpost](https://github.com/wearefuturegov/outpost)'s public API component.
 
-It's not useful by itself — it should be used alongside [Outpost](https://github.com/wearefuturegov/outpost). The API it outputs is consumable by [Scout](https://github.com/wearefuturegov/scout-x).
+It's a simple Node.js app which queries information from a MongoDB collection and publishes it as a read-only, rate-limited API.
+
+It's not useful by itself — it depends on a public index built by Outpost. The API it outputs is consumable by [Scout](https://github.com/wearefuturegov/scout-x).
 
 ## Running it locally
 
@@ -13,7 +15,7 @@ npm i
 npm run dev
 ```
 
-By default it will be on `localhost:4000/api/v1`.
+By default it will be on `localhost:4000/api/v1/services`.
 
 ## Running it on the web
 
