@@ -1,9 +1,9 @@
 const express = require("express")
 const sslRedirect = require("heroku-ssl-redirect")
+const rateLimit  = require("express-rate-limit")
 const cors = require("cors")
 const { connect } = require("./db")
 const routes = require("./routes")
-const rateLimit  = require("express-rate-limit")
 
 const server = express()
 
