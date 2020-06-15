@@ -35,8 +35,8 @@ The `/services` endpoint supports the following query parameters:
 | Parameter         | Description                                                                                                                                                                        | Example                                    |
 |-------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|--------------------------------------------|
 | `taxonomies=`     | Only returns services in one or more of the supplied taxonomy slugs.                                                                                                               | `taxonomies=8-to-11&taxonomy=things-to-do` |
-| `keywords=`       | Find services with a match in the name or description. Also sorts by relevance unless location parameters are also given.                                                          | `keywords=evening gym`                     |
-| `location=`       | Provide a string that can be parsed as a location in the UK. Will be geocoded and used to return results by increasing distance from that point. Overrides the keyword sort order. | `location=Aylesbury`                       |
+| `keywords=`       | Find services with a match in the name or description. Sorts by relevance.                                                          | `keywords=evening gym`                     |
+| `location=`       | Provide a string that can be geocoded into a location within the UK. Will be geocoded and used to sort results by increasing distance from that point. Overrides any existing sort order. | `location=Aylesbury`                       |
 | `lat=` and `lng=` | As above, but skip the geocoding step.                                                                                                                                             | `lng=-0.78206&lat=51.612687`               |
 
 ## Configuration
