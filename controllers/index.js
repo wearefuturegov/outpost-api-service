@@ -9,6 +9,7 @@ module.exports = {
 
             let query = {}
 
+            // full text search
             if(req.query.keywords){
                 if(req.query.location || req.query.lng || req.query.lat){
                     const docs = await Service
@@ -20,10 +21,16 @@ module.exports = {
                 }
             }
 
-            if(req.query.taxonomies) query["taxonomies.slug"] = { 
-                $in: [].concat(req.query.taxonomies)
+            // taxonomies
+            if(req.query.taxonomies){
+                let clusters = []
+                req.query.taxonomy_clusters.map(cluster => clusters.push({
+                    "taxonomies.slug": { $in: [].concat(cluster.split(",")) }
+                }))
+                query.$and = clusters
             }
 
+            // geocoding
             let interpretated_location
             if(req.query.location && !(req.query.lat && req.query.lng)){
                 let { results } = await geocode(req.query.location)
@@ -34,6 +41,7 @@ module.exports = {
                 }
             }
 
+            // geo sort
             if(req.query.lat && req.query.lng){
                 query["locations.geometry"] = {
                     $nearSphere: {
