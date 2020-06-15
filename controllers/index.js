@@ -60,7 +60,7 @@ module.exports = {
                     count
                 ]) => res.json({
                     page: parseInt(req.query.page) || 1,
-                    totalPages: Math.round(count / perPage),                    
+                    totalPages: Math.ceil(count / perPage),                    
                     totalElements: count,
                     interpretated_location,
                     content: results.map(result => ({
