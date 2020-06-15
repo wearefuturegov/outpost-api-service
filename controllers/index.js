@@ -23,12 +23,11 @@ module.exports = {
 
             // taxonomies
             if(req.query.taxonomies){
-                let expressions = []
+                query.$and = []
                 let taxonomiesArray = [].concat(req.query.taxonomies)
-                taxonomiesArray.forEach(cluster => expressions.push({
+                taxonomiesArray.forEach(cluster => query.$and.push({
                     "taxonomies.slug": { $in: [].concat(cluster.split(",")) }
                 }))
-                query.$and = expressions
             }
 
             // geocoding
