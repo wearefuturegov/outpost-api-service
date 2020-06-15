@@ -1,5 +1,7 @@
 # Outpost API service
 
+**[API documentation is on the wiki](https://github.com/wearefuturegov/outpost-api-service/wiki)**
+
 This is [Outpost](https://github.com/wearefuturegov/outpost)'s public API component.
 
 It's a simple Node.js app which queries information from a MongoDB collection and publishes it as a read-only, rate-limited REST API.
@@ -27,17 +29,6 @@ It's suitable for 12-factor hosting like Heroku. It has a [Procfile](https://dev
 ```
 npm start
 ```
-
-## API parameters
-
-The `/services` endpoint supports the following query parameters: 
-
-| Parameter         | Description                                                                                                                                                                        | Example                                    |
-|-------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|--------------------------------------------|
-| `taxonomies=`     | Only returns services in one or more of the supplied taxonomy slugs.                                                                                                               | `taxonomies=8-to-11&taxonomy=things-to-do` |
-| `keywords=`       | Find services with a match in the name or description. Sorts by relevance.                                                          | `keywords=evening gym`                     |
-| `location=`       | Provide a string that can be geocoded into a location within the UK. Will be geocoded and used to sort results by increasing distance from that point. Overrides any existing sort order. | `location=Aylesbury`                       |
-| `lat=` and `lng=` | As above, but skip the geocoding step.                                                                                                                                             | `lng=-0.78206&lat=51.612687`               |
 
 ## Configuration
 
