@@ -2,7 +2,7 @@
 
 This is [Outpost](https://github.com/wearefuturegov/outpost)'s public API component.
 
-It's a simple Node.js app which queries information from a MongoDB collection and publishes it as a read-only, rate-limited API.
+It's a simple Node.js app which queries information from a MongoDB collection and publishes it as a read-only, rate-limited REST API.
 
 It's not useful by itself — it depends on a public index built by Outpost. The API it outputs is consumable by [Scout](https://github.com/wearefuturegov/scout-x).
 
