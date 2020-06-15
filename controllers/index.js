@@ -79,10 +79,7 @@ module.exports = {
         try{
             let result = await db().collection("indexed_services").findOne({id: parseInt(req.params.id)})
             if(!result) throw new Error("No matching service")
-            res.json({
-                ...result.service,
-                location: result.location
-            })
+            res.json(result)
         } catch(err) {
             next(err)
         }
