@@ -1,4 +1,5 @@
 const express = require("express")
+const sslRedirect = require("heroku-ssl-redirect")
 const cors = require("cors")
 const { connect } = require("./db")
 const routes = require("./routes")
