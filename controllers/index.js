@@ -24,8 +24,8 @@ module.exports = {
             // taxonomies
             if(req.query.taxonomies){
                 let expressions = []
-                let taxonomiesArray = [].concat(req.query.taxonomy_clusters)
-                taxonomiesArray.map(cluster => expressions.push({
+                let taxonomiesArray = [].concat(req.query.taxonomies)
+                taxonomiesArray.forEach(cluster => expressions.push({
                     "taxonomies.slug": { $in: [].concat(cluster.split(",")) }
                 }))
                 query.$and = expressions
@@ -78,7 +78,6 @@ module.exports = {
                     }))
                 }))
                 .catch(e => next(e))
-
         } catch(e){
             next(e)
         }
