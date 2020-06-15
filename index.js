@@ -9,6 +9,7 @@ require("dotenv").config()
 
 connect(() => console.log("Database connection established"))
 
+server.use(sslRedirect())
 server.use(cors())
 server.use("/api/v1/", routes)
 
