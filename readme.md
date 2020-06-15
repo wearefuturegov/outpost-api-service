@@ -46,8 +46,8 @@ It expects a few environment variables.
 It needs the right indices on the MongoDB collection to enable full-text and geo search. Something like:
 
 ```
-db.indexed_services.createIndex({ "service.name": "text", "service.description": "text" })
-db.indexed_services.createIndex({ "location.coordinates": "2dsphere" })
+db.indexed_services.createIndex({ name: "text", description: "text" })
+db.indexed_services.createIndex({ "locations.coordinates": "2dsphere" })
 ```
 
-You can create them automatically with the `npm run prepare-indices` command.
+You can create these two automatically with the `npm run prepare-indices` command.
