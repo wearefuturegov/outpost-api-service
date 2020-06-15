@@ -17,6 +17,9 @@ By default it will be on `localhost:4000/api/v1`.
 
 ## Running it on the web
 
+[![Deploy](https://www.herokucdn.com/deploy/button.svg)](
+https://heroku.com/deploy)
+
 It's suitable for 12-factor hosting like Heroku. It has a [Procfile](https://devcenter.heroku.com/articles/procfile) that will make sure the proper MongoDB indices are set up.
 
 ```
