@@ -25,7 +25,7 @@ module.exports = {
             if(req.query.taxonomies){
                 let expressions = []
                 let taxonomiesArray = [].concat(req.query.taxonomy_clusters)
-                taxonomiesArray.map(cluster => clusters.push({
+                taxonomiesArray.map(cluster => expressions.push({
                     "taxonomies.slug": { $in: [].concat(cluster.split(",")) }
                 }))
                 query.$and = expressions
