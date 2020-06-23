@@ -54,7 +54,7 @@ module.exports = {
                 }
             }
 
-            // visible today
+            // only return things visible today
             Queries.visibleNow(query)
 
             Promise.all([
@@ -72,7 +72,8 @@ module.exports = {
                     count
                 ]) => res.json({
                     page: parseInt(req.query.page) || 1,
-                    totalPages: Math.ceil(count / perPage),                    
+                    size: results.length,
+                    totalPages: Math.ceil(count / perPage),
                     totalElements: count,
                     interpretated_location,
                     content: results.map(result => ({
