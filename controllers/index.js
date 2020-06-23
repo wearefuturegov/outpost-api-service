@@ -1,5 +1,6 @@
 const { calculateDistance, geocode } = require("../lib")
 const { db } = require("../db")
+const Queries = require("../lib/queries")
 
 module.exports = {
     index: async (req, res, next) => {
@@ -53,6 +54,9 @@ module.exports = {
                 }
             }
 
+            // visible today
+            Queries.visibleNow(query)
+
             Promise.all([
                 Service
                     .find(query)
@@ -84,7 +88,10 @@ module.exports = {
 
     show: async (req, res, next) => {
         try{
-            let result = await db().collection("indexed_services").findOne({id: parseInt(req.params.id)})
+            const query = {id: parseInt(req.params.id) }
+            Queries.visibleNow(query)
+            
+            let result = await db().collection("indexed_services").findOne(query)
             if(!result) throw new Error("No matching service")
             res.json(result)
         } catch(err) {
