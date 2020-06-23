@@ -1,4 +1,4 @@
-const { calculateDistance, geocode } = require("../lib")
+const { calculateDistance, geocode, projection } = require("../lib")
 const { db } = require("../db")
 const Queries = require("../lib/queries")
 
@@ -55,11 +55,12 @@ module.exports = {
             }
 
             // only return things visible today
-            Queries.visibleNow(query)
+            query = Queries.visibleNow(query)
 
             Promise.all([
                 Service
                     .find(query)
+                    .project(projection)
                     .limit(perPage)
                     .skip((parseInt(req.query.page) - 1) * perPage)
                     .toArray(),
@@ -92,7 +93,7 @@ module.exports = {
             const query = {id: parseInt(req.params.id) }
             Queries.visibleNow(query)
             
-            let result = await db().collection("indexed_services").findOne(query)
+            let result = await db().collection("indexed_services").findOne(query, projection)
             if(!result) throw new Error("No matching service")
             res.json(result)
         } catch(err) {
