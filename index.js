@@ -9,7 +9,7 @@ const server = express()
 
 require("dotenv").config()
 
-connect(() => console.log("Database connection established"))
+connect(() => console.log("📡 Database connection established"))
 
 server.use(rateLimit({
     windowMs: 15 * 60 * 1000,
