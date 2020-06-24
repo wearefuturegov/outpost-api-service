@@ -94,7 +94,7 @@ module.exports = {
             Queries.visibleNow(query)
             
             let result = await db().collection("indexed_services").findOne(query, projection)
-            if(!result) throw new Error("No matching service")
+            if(!result) throw new Error("No matching document")
             res.json(result)
         } catch(err) {
             next(err)

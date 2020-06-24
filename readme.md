@@ -17,7 +17,7 @@ npm i
 npm run dev
 ```
 
-By default it will be on `localhost:4000/api/v1/services`.
+By default it will be on `localhost:5000/api/v1/services`.
 
 ## Running it on the web
 
