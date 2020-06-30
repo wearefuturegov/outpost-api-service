@@ -6,7 +6,7 @@ module.exports = {
     index: async (req, res, next) => {
         try{
             const Service = db().collection("indexed_services")
-            const perPage = 20
+            const perPage = parseInt(req.query.per_page) || 20
 
             let query = {}
 
@@ -45,6 +45,14 @@ module.exports = {
             // only return things visible today
             query = Queries.visibleNow(query)
 
+            // ages filtering
+            if(req.query.min_age){
+                query.min_age = { $lte: parseInt(req.query.min_age) }
+            }
+            if(req.query.max_age){
+                query.max_age = { $gte: parseInt(req.query.min_age) }
+            }
+
             // geo sort
             if(req.query.lat && req.query.lng){
                 query["locations.geometry"] = {
@@ -72,6 +80,7 @@ module.exports = {
                     results,
                     count
                 ]) => res.json({
+                    query,
                     page: parseInt(req.query.page) || 1,
                     size: results.length,
                     totalPages: Math.ceil(count / perPage),

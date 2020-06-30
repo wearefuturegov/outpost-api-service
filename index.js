@@ -1,3 +1,4 @@
+require("dotenv").config()
 const express = require("express")
 const sslRedirect = require("heroku-ssl-redirect")
 const rateLimit  = require("express-rate-limit")
@@ -6,8 +7,6 @@ const { connect } = require("./db")
 const routes = require("./routes")
 
 const server = express()
-
-require("dotenv").config()
 
 connect(() => console.log("📡 Database connection established"))
 
