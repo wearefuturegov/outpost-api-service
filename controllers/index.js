@@ -46,11 +46,12 @@ module.exports = {
             query = Queries.visibleNow(query)
 
             // ages filtering
-            if(req.query.min_age){
-                query.min_age = { $lte: parseInt(req.query.min_age) }
-            }
-            if(req.query.max_age){
-                query.max_age = { $gte: parseInt(req.query.min_age) }
+            query = Queries.filterAges(query, req)
+
+            // only filters
+            if(req.query.only){
+                let onlyArray = req.query.only.split(",")
+                if(onlyArray.includes("free")) query.free = true
             }
 
             // geo sort
@@ -80,7 +81,6 @@ module.exports = {
                     results,
                     count
                 ]) => res.json({
-                    query,
                     page: parseInt(req.query.page) || 1,
                     size: results.length,
                     totalPages: Math.ceil(count / perPage),
