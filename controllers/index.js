@@ -32,15 +32,18 @@ module.exports = {
             }
 
             // geocoding
-            let interpretated_location
+            let interpreted_location
             if(req.query.location && !(req.query.lat && req.query.lng)){
                 let { results } = await geocode(req.query.location)
                 if(results[0]){
-                    interpretated_location = results[0].formatted_address
+                    interpreted_location = results[0].formatted_address
                     req.query.lng = results[0].geometry.location.lng, 
                     req.query.lat = results[0].geometry.location.lat
                 }
             }
+
+            // only return things visible today
+            query = Queries.visibleNow(query)
 
             // geo sort
             if(req.query.lat && req.query.lng){
@@ -53,9 +56,6 @@ module.exports = {
                     }
                 }
             }
-
-            // only return things visible today
-            query = Queries.visibleNow(query)
 
             Promise.all([
                 Service
@@ -76,7 +76,7 @@ module.exports = {
                     size: results.length,
                     totalPages: Math.ceil(count / perPage),
                     totalElements: count,
-                    interpretated_location,
+                    interpreted_location,
                     content: results.map(result => ({
                         ...result,
                         distance_away: calculateDistance(req.query, result.locations)
