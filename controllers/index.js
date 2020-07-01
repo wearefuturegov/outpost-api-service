@@ -42,17 +42,14 @@ module.exports = {
                 }
             }
 
-            // only return things visible today
+            // apply visibility filtering
             query = Queries.visibleNow(query)
 
-            // ages filtering
+            // apply age filtering
             query = Queries.filterAges(query, req)
 
-            // only filters
-            if(req.query.only){
-                let onlyArray = req.query.only.split(",")
-                if(onlyArray.includes("free")) query.free = true
-            }
+            // apply only filters
+            query = Queries.filterOnly(query, req)
 
             // geo sort
             if(req.query.lat && req.query.lng){
