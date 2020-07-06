@@ -66,7 +66,11 @@ module.exports = {
             Promise.all([
                 Service
                     .find(query)
-                    .project(projection)
+                    .project({
+                        ...projection,
+                        score: { $meta: "textScore" }
+                    })
+                    .sort({ score: { $meta: "textScore" } })
                     .limit(perPage)
                     .skip((parseInt(req.query.page) - 1) * perPage)
                     .toArray(),
@@ -82,11 +86,12 @@ module.exports = {
                     size: results.length,
                     totalPages: Math.ceil(count / perPage),
                     totalElements: count,
+                    explanation: results,
                     interpreted_location,
-                    content: results.map(result => ({
-                        ...result,
-                        distance_away: calculateDistance(req.query, result.locations)
-                    }))
+                    // content: results.map(result => ({
+                    //     ...result,
+                    //     distance_away: calculateDistance(req.query, result.locations)
+                    // }))
                 }))
                 .catch(e => next(e))
         } catch(e){
