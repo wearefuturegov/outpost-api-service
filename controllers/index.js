@@ -70,7 +70,7 @@ module.exports = {
                         ...projection,
                         score: { $meta: "textScore" }
                     })
-                    .sort({ score: { $meta: "textScore" } })
+                    .sort(query.$text ? { score: { $meta: "textScore" } } : false)
                     .limit(perPage)
                     .skip((parseInt(req.query.page) - 1) * perPage)
                     .toArray(),
