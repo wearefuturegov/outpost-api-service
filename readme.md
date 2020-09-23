@@ -34,7 +34,7 @@ npm start
 
 It expects a few environment variables.
 
-- `MONGODB_URI` overrides the default `localhost:27017/outpost_development` MongoDB connection URI.
+- `DB_URI` overrides the default `localhost:27017/outpost_development` MongoDB connection URI.
 - `GOOGLE_API_KEY` used for geocoding from `location=` parameters. Needs the geocoding API enabled.
 
 ### Indices
