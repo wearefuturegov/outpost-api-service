@@ -105,7 +105,7 @@ module.exports = {
 
     show: async (req, res, next) => {
         try{
-            const query = {id: parseInt(req.params.id) }
+            let query = {id: parseInt(req.params.id) }
             query = Queries.visibleNow(query)
             let result = await db().collection("indexed_services").findOne(query, projection)
             if(!result) throw new Error("No matching document")
