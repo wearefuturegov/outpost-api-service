@@ -22,9 +22,10 @@ module.exports = {
                 }
             }
 
+            query.$and = []
+
             // taxonomies
             if(req.query.taxonomies){
-                query.$and = []
                 let taxonomiesArray = [].concat(req.query.taxonomies)
                 taxonomiesArray.forEach(cluster => query.$and.push({
                     "taxonomies.slug": { $in: [].concat(cluster.split(",")) }
@@ -33,7 +34,10 @@ module.exports = {
 
             // send needs
             if(req.query.needs){
-                query["send_needs.slug"] = { $in: [].concat(req.query.needs) }
+                let needsArray = [].concat(req.query.needs)
+                needsArray.forEach(cluster => query.$and.push({
+                    "send_needs.slug": { $in: [].concat(cluster.split(",")) }
+                }))
             }
 
             // geocoding
