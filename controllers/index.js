@@ -31,6 +31,12 @@ module.exports = {
                 }))
             }
 
+            // taxonomies
+            if(req.query.needs){
+                let needsArray = [].concat(req.query.needs)
+                needsArray.forEach(need => query["send_needs.slug"].push(need))
+            }
+
             // geocoding
             let interpreted_location
             if(req.query.location && !(req.query.lat && req.query.lng)){
@@ -101,8 +107,7 @@ module.exports = {
     show: async (req, res, next) => {
         try{
             const query = {id: parseInt(req.params.id) }
-            Queries.visibleNow(query)
-            
+            query = Queries.visibleNow(query)
             let result = await db().collection("indexed_services").findOne(query, projection)
             if(!result) throw new Error("No matching document")
             res.json(result)
