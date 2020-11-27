@@ -31,10 +31,9 @@ module.exports = {
                 }))
             }
 
-            // taxonomies
+            // send needs
             if(req.query.needs){
-                let needsArray = [].concat(req.query.needs)
-                needsArray.forEach(need => query["send_needs.slug"].push(need))
+                query["send_needs.slug"] = { $in: [].concat(req.query.needs) }
             }
 
             // geocoding
