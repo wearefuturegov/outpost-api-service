@@ -21,8 +21,7 @@ By default it will be on `localhost:5000/api/v1/services`.
 
 ## Running it on the web
 
-[![Deploy](https://www.herokucdn.com/deploy/button.svg)](
-https://heroku.com/deploy)
+[![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy)
 
 It's suitable for 12-factor hosting like Heroku. It has a [Procfile](https://devcenter.heroku.com/articles/procfile) that will make sure the proper MongoDB indices are set up.
 
@@ -46,4 +45,4 @@ db.indexed_services.createIndex({ name: "text", description: "text" })
 db.indexed_services.createIndex({ "locations.coordinates": "2dsphere" })
 ```
 
-You can create these two automatically with the `npm run prepare-indices` command.
+You can create these two, plus an index of taxonomy slugs, automatically with the `npm run prepare-indices` command.
