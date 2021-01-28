@@ -19,7 +19,6 @@ module.exports = {
           query._id = { $in: docs.map(doc => doc._id) }
         } else {
           query.$text = { $search: req.query.keywords }
-          projection.score = { $meta: "textScore" }
         }
       }
 
@@ -51,8 +50,8 @@ module.exports = {
         let { results } = await geocode(req.query.location)
         if (results[0]) {
           interpreted_location = results[0].formatted_address
-          ;(req.query.lng = results[0].geometry.location.lng),
-            (req.query.lat = results[0].geometry.location.lat)
+          req.query.lng = results[0].geometry.location.lng
+          req.query.lat = results[0].geometry.location.lat
         }
       }
 
