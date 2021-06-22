@@ -10,6 +10,7 @@ const server = express()
 
 connect(() => console.log("📡 Database connection established"))
 
+server.set('trust proxy', 1)
 server.use(rateLimit({
     windowMs: 15 * 60 * 1000,
     max: 100
