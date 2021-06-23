@@ -10,7 +10,7 @@ It's not useful by itself — it depends on a public index built by Outpost. The
 
 ## Running it locally
 
-You need Node.js, npm and a working MongoDB database [with the right indices](#indexes) available on `localhost:27017`.
+You need Node.js, npm and a working MongoDB database [with the right indices](#indices) available on `localhost:27017`.
 
 ```
 npm i
