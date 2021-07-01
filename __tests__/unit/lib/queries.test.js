@@ -1,5 +1,11 @@
 const Queries = require("../../../lib/queries")
 
+// TODO - if min_age is null then set to 0?
+// TODO - if max_age is null then set to 1000?
+// (service.min_age => min_age) && (service.min_age <= max_age)
+// (service.max_age => min_age) && (service.max_age <= max_age)
+max_age
+
 describe('Calling filterAges ', () => {
   it('should return an empty result if called with no query', () => {
     const query = Queries.filterAges({}, { query: {} })
@@ -26,7 +32,6 @@ describe('Calling filterAges ', () => {
     })
   })
 
-  // TODO: I think this should be gte min_age 0 and lte max_age 12 
   it('should return a query containing gte the max_age supplied', () => {
     const query = Queries.filterAges({}, { query: { max_age: 12 } })
     expect(query).toStrictEqual({
@@ -47,7 +52,6 @@ describe('Calling filterAges ', () => {
     })
   })
 
-  // TODO I think this should be lte max_age && gte min_age
   it('should return a query containing gte the max_age and lte the min_age supplied', () => {
     const query = Queries.filterAges({}, { query: { min_age: 8, max_age: 14 } })
     expect(query).toStrictEqual({
