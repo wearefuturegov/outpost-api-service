@@ -1,11 +1,5 @@
 const Queries = require("../../../lib/queries")
 
-// TODO - if min_age is null then set to 0?
-// TODO - if max_age is null then set to 1000?
-// (service.min_age => min_age) && (service.min_age <= max_age)
-// (service.max_age => min_age) && (service.max_age <= max_age)
-max_age
-
 describe('Calling filterAges ', () => {
   it('should return an empty result if called with no query', () => {
     const query = Queries.filterAges({}, { query: {} })
