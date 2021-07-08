@@ -1,1 +1,1 @@
-release: npm run prepare-indices
+# release: npm run prepare-indices
