@@ -6,76 +6,84 @@ describe('Calling filterAges ', () => {
     expect(query).toStrictEqual({ "$and": [] })
   })
 
-  it('should return a query containing lte the min_age supplied', () => {
+  describe('with only a min_age supplied', () => {
     const query = Queries.filterAges({}, { query: { min_age: 16 } })
-    expect(query).toStrictEqual({
-      "$and": [
-        {
-          "$or": [
-            {
-              "min_age": null,
-            },
-            {
-              "min_age": {
-                "$lte": 16,
+
+    it('should return a query containing a max_age gte the min_age supplied', () => {
+      expect(query).toStrictEqual({
+        "$and": [
+          {
+            "$or": [
+              {
+                "max_age": null,
               },
-            },
-          ],
-        },
-      ],
+              {
+                "max_age": {
+                  "$gte": 16,
+                },
+              },
+            ],
+          },
+        ],
+      })
     })
   })
 
-  it('should return a query containing gte the max_age supplied', () => {
+  describe('with only a max_age supplied', () => {
     const query = Queries.filterAges({}, { query: { max_age: 12 } })
-    expect(query).toStrictEqual({
-      "$and": [
-        {
-          "$or": [
-            {
-              "max_age": null,
-            },
-            {
-              "max_age": {
-                "$gte": 12,
+
+    it('should return a query containing min_age lte the max_age supplied', () => {
+      expect(query).toStrictEqual({
+        "$and": [
+          {
+            "$or": [
+              {
+                "min_age": null,
               },
-            },
-          ],
-        },
-      ],
+              {
+                "min_age": {
+                  "$lte": 12,
+                },
+              },
+            ],
+          },
+        ],
+      })
     })
   })
 
-  it('should return a query containing gte the max_age and lte the min_age supplied', () => {
+  describe('with a min_age and a max_age supplied', () => {
     const query = Queries.filterAges({}, { query: { min_age: 8, max_age: 14 } })
-    expect(query).toStrictEqual({
-      "$and": [
-        {
-          "$or": [
-            {
-              "min_age": null,
-            },
-            {
-              "min_age": {
-                "$lte": 8,
+
+    it('should return a query containing max_age gte the min_age and min_age lte the max_age supplied', () => {
+      expect(query).toStrictEqual({
+        "$and": [
+          {
+            "$or": [
+              {
+                "max_age": null,
               },
-            },
-          ],
-        },
-        {
-          "$or": [
-            {
-              "max_age": null,
-            },
-            {
-              "max_age": {
-                "$gte": 14,
+              {
+                "max_age": {
+                  "$gte": 8,
+                },
               },
-            },
-          ],
-        },
-      ],
+            ],
+          },
+          {
+            "$or": [
+              {
+                "min_age": null,
+              },
+              {
+                "min_age": {
+                  "$lte": 14,
+                },
+              },
+            ],
+          },
+        ],
+      })
     })
   })
 })
-
