@@ -44,6 +44,17 @@ module.exports = {
         )
       }
 
+
+      // accessibility
+      if (req.query.accessibility) {
+        let accessibilityArray = [].concat(req.query.accessibility)
+        accessibilityArray.forEach(cluster =>
+          query.$and.push({
+            "locations.accessibilities.slug": { $in: [].concat(cluster.split(",")) },
+          })
+        )
+      }
+
       // geocoding
       let interpreted_location
       if (req.query.location && !(req.query.lat && req.query.lng)) {
