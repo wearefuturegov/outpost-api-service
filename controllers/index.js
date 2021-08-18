@@ -55,6 +55,18 @@ module.exports = {
         )
       }
 
+
+      // days
+      if (req.query.days) {
+        let daysArray = [].concat(req.query.days)
+        daysArray.forEach(cluster =>
+          query.$and.push({
+            "regular_schedules.weekday": { $in: [].concat(cluster.split(",")) },
+          })
+        )
+      }
+
+
       // geocoding
       let interpreted_location
       if (req.query.location && !(req.query.lat && req.query.lng)) {
