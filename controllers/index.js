@@ -24,6 +24,16 @@ module.exports = {
 
       query.$and = []
 
+      // only get services for the specific scout instance
+      if (req.query.targetDirectories) {
+        let targetDirectoriesArray = [].concat(req.query.targetDirectories)
+        targetDirectoriesArray.forEach(cluster =>
+          query.$and.push({
+            "target_directories.name": { $in: [].concat(cluster.split(",")) },
+          })
+        )
+      }
+
       // taxonomies
       if (req.query.taxonomies) {
         let taxonomiesArray = [].concat(req.query.taxonomies)
