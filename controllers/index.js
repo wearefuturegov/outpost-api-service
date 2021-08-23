@@ -46,9 +46,9 @@ module.exports = {
 
 
       // accessibility
-      if (req.query.accessibility) {
-        let accessibilityArray = [].concat(req.query.accessibility)
-        accessibilityArray.forEach(cluster =>
+      if (req.query.accessibilities) {
+        let accessibilitiesArray = [].concat(req.query.accessibilities)
+        accessibilitiesArray.forEach(cluster =>
           query.$and.push({
             "locations.accessibilities.slug": { $in: [].concat(cluster.split(",")) },
           })
