@@ -29,7 +29,7 @@ module.exports = {
         let targetDirectoriesArray = [].concat(req.query.targetDirectories)
         targetDirectoriesArray.forEach(cluster =>
           query.$and.push({
-            "target_directories.name": { $in: [].concat(cluster.split(",")) },
+            "target_directories.label": { $in: [].concat(cluster.split(",")) },
           })
         )
       }
