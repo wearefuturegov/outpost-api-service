@@ -65,6 +65,16 @@ module.exports = {
         )
       }
 
+      // suitabilities
+      if (req.query.suitabilities) {
+        let suitabilitiesArray = [].concat(req.query.suitabilities)
+        suitabilitiesArray.forEach(cluster =>
+          query.$and.push({
+            "suitabilities.slug": { $in: [].concat(cluster.split(",")) },
+          })
+        )
+      }
+
 
       // days
       if (req.query.days) {
