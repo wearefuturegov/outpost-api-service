@@ -24,6 +24,16 @@ module.exports = {
 
       query.$and = []
 
+      // only get services for the specific scout instance
+      if (req.query.targetDirectories) {
+        let targetDirectoriesArray = [].concat(req.query.targetDirectories)
+        targetDirectoriesArray.forEach(cluster =>
+          query.$and.push({
+            "target_directories.label": { $in: [].concat(cluster.split(",")) },
+          })
+        )
+      }
+
       // taxonomies
       if (req.query.taxonomies) {
         let taxonomiesArray = [].concat(req.query.taxonomies)
@@ -43,6 +53,39 @@ module.exports = {
           })
         )
       }
+
+
+      // accessibility
+      if (req.query.accessibilities) {
+        let accessibilitiesArray = [].concat(req.query.accessibilities)
+        accessibilitiesArray.forEach(cluster =>
+          query.$and.push({
+            "locations.accessibilities.slug": { $in: [].concat(cluster.split(",")) },
+          })
+        )
+      }
+
+      // suitabilities
+      if (req.query.suitabilities) {
+        let suitabilitiesArray = [].concat(req.query.suitabilities)
+        suitabilitiesArray.forEach(cluster =>
+          query.$and.push({
+            "suitabilities.slug": { $in: [].concat(cluster.split(",")) },
+          })
+        )
+      }
+
+
+      // days
+      if (req.query.days) {
+        let daysArray = [].concat(req.query.days)
+        daysArray.forEach(cluster =>
+          query.$and.push({
+            "regular_schedules.weekday": { $in: [].concat(cluster.split(",")) },
+          })
+        )
+      }
+
 
       // geocoding
       let interpreted_location
