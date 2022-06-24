@@ -24,13 +24,14 @@ module.exports = {
 
       query.$and = []
 
-      // only get services for the specific scout instance
-      if (req.query.targetDirectories) {
-        let targetDirectoriesArray = [].concat(req.query.targetDirectories)
-        targetDirectoriesArray.forEach(cluster =>
+      // only get services for the requested target
+      if (req.query.targets) {
+        let targetsArray = [].concat(req.query.targets)
+        targetsArray.forEach(cluster => {
           query.$and.push({
             "target_directories.label": { $in: [].concat(cluster.split(",")) },
           })
+          }
         )
       }
 
