@@ -6,7 +6,7 @@ module.exports = {
   index: async (req, res, next) => {
     try {
       const Service = db().collection("indexed_services")
-      const perPage = parseInt(req.query.per_page) || 20
+      const perPage = parseInt(req.query.per_page) || 50
 
       let query = {}
 
@@ -133,19 +133,24 @@ module.exports = {
           .toArray(),
         Service.find(query).count(),
       ])
-        .then(([results, count]) =>
+        .then(([results, count]) => {
+          const currentPage = parseInt(req.query.page) || 1
+          const totalPages = Math.ceil(count / perPage)
+
           res.json({
-            page: parseInt(req.query.page) || 1,
+            number: currentPage,
             size: results.length,
-            totalPages: Math.ceil(count / perPage),
+            totalPages: totalPages,
             totalElements: count,
+            first: currentPage === 1,
+            last: currentPage === totalPages,
             interpreted_location,
             content: results.map(result => ({
               ...result,
               distance_away: calculateDistance(req.query, result.locations),
             })),
           })
-        )
+        })
         .catch(e => next(e))
     } catch (e) {
       next(e)
