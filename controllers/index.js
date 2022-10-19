@@ -10,7 +10,18 @@ module.exports = {
 
       let query = {}
 
-      // full text search
+      // keyword=word
+      /**
+       * full text search
+       * if we have a location, lng or lat:
+       *  - it searches for the text first, and
+       *    then the rest of the query only looks in those
+       *    _ids nb fuzzy search not supported
+       * - if location || lng || lat ->
+       *      query += _id {$in ['array of ids that matched results']}
+       * - if not - search for the keyword
+       */
+
       if (req.query.keywords) {
         if (req.query.location || req.query.lng || req.query.lat) {
           const docs = await Service.find({
@@ -20,11 +31,14 @@ module.exports = {
         } else {
           query.$text = { $search: req.query.keywords }
         }
+        return query
       }
 
       query.$and = []
 
       // only get services for the specific scout instance
+      // targetDirectories=bod,bfis
+      // targetDirectories=bod
       if (req.query.targetDirectories) {
         let targetDirectoriesArray = [].concat(req.query.targetDirectories)
         targetDirectoriesArray.forEach(cluster =>
@@ -35,6 +49,7 @@ module.exports = {
       }
 
       // taxonomies
+      // taxonomies=advice-and-support&taxonomies=health-and-wellbeing
       if (req.query.taxonomies) {
         let taxonomiesArray = [].concat(req.query.taxonomies)
         taxonomiesArray.forEach(cluster =>
@@ -45,6 +60,7 @@ module.exports = {
       }
 
       // send needs
+      // send_needs=autism&send_needs=social-emotional-and-mental-health-difficulties
       if (req.query.needs) {
         let needsArray = [].concat(req.query.needs)
         needsArray.forEach(cluster =>
@@ -54,18 +70,21 @@ module.exports = {
         )
       }
 
-
       // accessibility
+      // accessibilities=accessible-toilet-facilities&accessibilities=wheelchair-accessible-entrance
       if (req.query.accessibilities) {
         let accessibilitiesArray = [].concat(req.query.accessibilities)
         accessibilitiesArray.forEach(cluster =>
           query.$and.push({
-            "locations.accessibilities.slug": { $in: [].concat(cluster.split(",")) },
+            "locations.accessibilities.slug": {
+              $in: [].concat(cluster.split(",")),
+            },
           })
         )
       }
 
       // suitabilities
+      // suitabilities=physical-disabilities&suitabilities=mental-health-acquired-brain-injury
       if (req.query.suitabilities) {
         let suitabilitiesArray = [].concat(req.query.suitabilities)
         suitabilitiesArray.forEach(cluster =>
@@ -75,8 +94,8 @@ module.exports = {
         )
       }
 
-
       // days
+      // days=Tuesday&days=Wednesday
       if (req.query.days) {
         let daysArray = [].concat(req.query.days)
         daysArray.forEach(cluster =>
@@ -86,8 +105,8 @@ module.exports = {
         )
       }
 
-
       // geocoding
+      // location=HP5%201AG
       let interpreted_location
       if (req.query.location && !(req.query.lat && req.query.lng)) {
         let { results } = await geocode(req.query.location)
@@ -108,6 +127,7 @@ module.exports = {
       query = Queries.filterOnly(query, req)
 
       // geo sort
+      // lat=-0.609669&lng=51.706335
       if (req.query.lat && req.query.lng) {
         query["locations.geometry"] = {
           $nearSphere: {
@@ -127,11 +147,11 @@ module.exports = {
           .project({
             ...projection,
           })
-          .sort(query.$text ? { score: { $meta: "textScore" } } : false)
+          .sort(query.$text ? { score: { $meta: "textScore" } } : {})
           .limit(perPage)
           .skip((parseInt(req.query.page) - 1) * perPage)
           .toArray(),
-        Service.find(query).count(),
+        Service.countDocuments(query),
       ])
         .then(([results, count]) => {
           const currentPage = parseInt(req.query.page) || 1
