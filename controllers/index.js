@@ -10,7 +10,7 @@ module.exports = {
 
       let query = {}
 
-      // keyword=word
+      // keywords=word
       /**
        * full text search
        * if we have a location, lng or lat:
@@ -31,7 +31,6 @@ module.exports = {
         } else {
           query.$text = { $search: req.query.keywords }
         }
-        return query
       }
 
       query.$and = []
