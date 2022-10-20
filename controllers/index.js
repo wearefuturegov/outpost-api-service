@@ -7,6 +7,7 @@ module.exports = {
     try {
       const Service = db().collection("indexed_services")
       const perPage = parseInt(req.query.per_page) || 50
+      const page = parseInt(req.query.page) || 1
 
       let query = {}
 
@@ -148,7 +149,7 @@ module.exports = {
           })
           .sort(query.$text ? { score: { $meta: "textScore" } } : {})
           .limit(perPage)
-          .skip((parseInt(req.query.page) - 1) * perPage)
+          .skip((page - 1) * perPage)
           .toArray(),
         Service.countDocuments(query),
       ])
