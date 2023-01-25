@@ -1,0 +1,13 @@
+.git
+.dockerignore
+.env
+.vscode
+node_modules/
+bundle/
+tmp/
+environment/
+docker-compose*
+Dockerfile
+Procfile
+makefile
+.DS_Store

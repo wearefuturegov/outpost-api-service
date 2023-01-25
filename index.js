@@ -7,7 +7,7 @@ const { connect } = require("./db")
 const routes = require("./routes")
 
 const server = express()
-const port = process.env.PORT || 7000
+const port = process.env.NODE_PORT || 3001
 const environment = process.env.NODE_ENV
 const isDevelopment = environment === "development"
 
