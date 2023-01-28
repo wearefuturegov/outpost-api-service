@@ -49,10 +49,6 @@ Other environmental variables:
 
 `COMPOSE_PROJECT_NAME`
 
-- Groups the docker-compose containers under a nice name
-
-`PROJECT_NAME`
-
 - This is used to name the docker images and containers
 
 ---

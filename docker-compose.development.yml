@@ -2,8 +2,8 @@ version: "3.7"
 services:
   outpost-api:
     env_file: ./.env
-    image: "${PROJECT_NAME}/app:development"
-    container_name: ${PROJECT_NAME}-app
+    image: "outpost-api/outpost-api:development"
+    container_name: outpost-api-app
     command: "npm run start"
     depends_on:
       - mongo
@@ -16,14 +16,13 @@ services:
     volumes:
       - ./:/app:cached
     environment:
-      PROJECT_NAME: ${PROJECT_NAME}
       NODE_ENV: development
     networks:
       - external_network
       - internal_network
   mongo:
-    image: "${PROJECT_NAME}/mongo:development"
-    container_name: ${PROJECT_NAME}-mongo
+    image: "outpost-api/mongo:development"
+    container_name: outpost-api-mongo
     build:
       context: ./
       dockerfile: ./environment/containers/mongo/Dockerfile
