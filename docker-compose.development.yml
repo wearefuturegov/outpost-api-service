@@ -1,0 +1,44 @@
+version: "3.7"
+services:
+  outpost-api:
+    env_file: ./.env
+    image: "outpost-api/outpost-api:development"
+    container_name: outpost-api-app
+    command: "npm run start"
+    depends_on:
+      - mongo
+    build:
+      context: ./
+      dockerfile: ./Dockerfile
+      target: development
+    ports:
+      - 3001:3001
+    volumes:
+      - ./:/app:cached
+    environment:
+      NODE_ENV: development
+    networks:
+      - external_network
+      - internal_network
+  mongo:
+    image: "outpost-api/mongo:development"
+    container_name: outpost-api-mongo
+    build:
+      context: ./
+      dockerfile: ./environment/containers/mongo/Dockerfile
+      target: development
+    ports:
+      - 27017:27017
+    volumes:
+      - mongo-volume:/data/db
+    networks:
+      - internal_network
+      - external_network
+
+volumes:
+  mongo-volume:
+
+networks:
+  external_network:
+  internal_network:
+    internal: true
