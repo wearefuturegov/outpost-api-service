@@ -1,22 +1,22 @@
 version: "3.7"
 services:
   outpost-api:
-    stdin_open: true
-    image: "outpost-api:development"
-    container_name: outpost-api-dev
+    image: "outpost-api:production"
+    container_name: outpost-api
+    restart: unless-stopped
     depends_on:
       - mongo
     build:
-      target: development
+      target: production
     ports:
       - "3001"
     volumes:
-      - ./:/app:cached
+      - ./:/app
     environment:
-      NODE_ENV: development
+      NODE_ENV: production
     networks:
-      - external_network
       - internal_network
+
   mongo:
     image: mongo:6
     container_name: outpost-api-mongo
