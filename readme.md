@@ -38,7 +38,7 @@ It expects a few environment variables.
 
 `DATABASE_URL`
 
-- MongoDB connection URI
+- MongoDB connection URI nb if you're running in a docker container and want to connect to your local db use `host.docker.internal` instead of `localhost`
 
 `GOOGLE_API_KEY`
 
@@ -53,39 +53,64 @@ Other environmental variables:
 
 ---
 
-## Getting started
+## 💻 Getting started
 
-There are three ways to run the Outpost API locally
-
-1. As an entire project, alongside [Outpost](https://github.com/wearefuturegov/outpost) and [Scout](https://github.com/wearefuturegov/scout-x), please see the [Outpost](https://github.com/wearefuturegov/outpost) documentation.
-2. On its own - using docker-compose
-3. On its own - using your own machine
-
-### On its own - using docker-compose
-
-- Requires docker quick to setup and run no worrying about node versions
+### Using docker
 
 ```sh
-# checkout the code
-git clone \
-git@github.com:wearefuturegov/outpost-api-service.git \
-&& cd outpost-api-service
+git clone git@github.com:wearefuturegov/outpost-api-service.git && cd outpost-api-service
 
-# build the image
-make build
+# build the image - if using for the first time
+docker build --tag outpost-api-service:development --target development .
 
-# start the containers
-make start
+# run the image in local environment
+docker run -p 3001:3001 --name outpost-api-service -v $(pwd):/app:cached -i -d outpost-api-service:development
 
-# (if this is your first time installing - prepare the db)
-make prepare_db
+# setup indices
+docker exec -it outpost-api-service npm run prepare-indices
 
-# outpost api is running on http://localhost:3001
+# access the site
+open http://localhost:3001/api/v1/services
+
+# open shell in container
+docker exec -it outpost-api-service /bin/ash;
+
+# run tests
+docker exec -it outpost-api-service npm run test
+
+# stop the container
+docker stop outpost-api-service
+
+# start again
+docker start outpost-api-service
 ```
 
-To change the port edit the ports in docker-compose file to portyouwant:3001, then run `make stop && make build && make start`
+### Using docker-compose
 
-### On its own - using your own machine
+```sh
+git clone git@github.com:wearefuturegov/outpost-api-service.git && cd outpost-api-service
+
+# build the image
+docker compose -f docker-compose.development.yml build
+
+# run the container
+docker compose -f docker-compose.development.yml up -d
+
+# setup indices
+docker compose -f docker-compose.development.yml exec outpost-api-dev npm run prepare-indices;
+
+# open shell in container
+docker compose -f docker-compose.development.yml exec outpost-api-dev /bin/ash;
+
+# run tests
+docker compose -f docker-compose.development.yml exec outpost-api-dev npm run test
+
+# stop the container
+docker compose -f docker-compose.development.yml stop
+
+```
+
+### On your machine
 
 To run it on your machine you need Node.js, npm, nvm (https://github.com/nvm-sh/nvm) and a working MongoDB database [with the right indices](#indices) available on `localhost:27017`.
 
@@ -107,23 +132,22 @@ npm run dev
 
 ## Deploying it
 
-Build the image and push to container repository
-
-```sh
-# Build it locally
-docker build --no-cache --tag outpost-api:production --target production .
-
-# Build it ready to push to dockerhub
-docker build --no-cache --tag apricot13/outpost-api:production --target production .
-docker push apricot13/outpost-api:production
-```
-
 [![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy)
 
 It's suitable for 12-factor hosting like Heroku. It has a [Procfile](https://devcenter.heroku.com/articles/procfile) that will make sure the proper MongoDB indices are set up.
 
 ```
 npm start
+```
+
+You can also deploy via docker
+
+```sh
+# build the image
+docker compose build
+
+# run the container
+docker compose up -d
 ```
 
 ## Indices
