@@ -23,8 +23,8 @@ services:
       NODE_ENV: development
       DB_URI: mongodb://mongo:27017/outpost_api_development
     networks:
-      - external_network
-      - internal_network
+      - outpos_api_external_network
+      - outpos_api_internal_network
   mongo:
     image: mongo:6
     container_name: outpost-api-mongo
@@ -34,12 +34,12 @@ services:
     volumes:
       - outpost-api-mongo-volume:/data/db
     networks:
-      - external_network
+      - outpos_api_external_network
 
 volumes:
   outpost-api-mongo-volume:
 
 networks:
-  external_network:
-  internal_network:
+  outpos_api_external_network:
+  outpos_api_internal_network:
     internal: true
