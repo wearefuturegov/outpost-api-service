@@ -22,8 +22,8 @@ services:
       NODE_ENV: production
       DB_URI: mongodb://mongo:27017/outpost_api
     networks:
-      - outpos_api_internal_network
-      - outpos_api_external_network
+      - outpost_api_internal_network
+      - outpost_api_external_network
 
   mongo:
     image: mongo:6
@@ -35,12 +35,12 @@ services:
       - outpost-api-mongo-volume:/data/db
       - ./setup-mongodb-production.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
     networks:
-      - outpos_api_external_network
+      - outpost_api_external_network
 
 volumes:
   outpost-api-mongo-volume:
 
 networks:
-  outpos_api_external_network:
-  outpos_api_internal_network:
+  outpost_api_external_network:
+  outpost_api_internal_network:
     internal: true

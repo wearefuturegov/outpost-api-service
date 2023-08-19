@@ -19,7 +19,7 @@ RUN npm ci --omit=dev
 FROM development_base as development
 ENV NODE_ENV development
 WORKDIR /usr/src/app
-COPY --chown=node:node --from=development_base /usr/build/app/node_modules ./
+COPY --chown=node:node --from=development_base /usr/build/app/node_modules ./node_modules
 USER node
 CMD ["npm", "run", "dev" ]
 
@@ -28,7 +28,7 @@ CMD ["npm", "run", "dev" ]
 FROM production_base as production
 ENV NODE_ENV production
 WORKDIR /usr/src/app
-COPY --chown=node:node --from=production_base /usr/build/app/node_modules /usr/src/app
+COPY --chown=node:node --from=production_base /usr/build/app/node_modules ./node_modules
 COPY --chown=node:node . /usr/src/app
 USER node
 CMD ["npm", "run", "start" ]

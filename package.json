@@ -1,5 +1,5 @@
 {
-  "name": "api_service",
+  "name": "@outpost_platform/api_service",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
@@ -9,6 +9,7 @@
     "test": "jest",
     "prepare-indices": "node lib/prepare-indices"
   },
+  "test": "exit 0",
   "keywords": [],
   "author": "",
   "license": "ISC",
