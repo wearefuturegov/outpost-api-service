@@ -97,13 +97,13 @@ docker compose -f docker-compose.development.yml build
 docker compose -f docker-compose.development.yml up -d
 
 # setup indices
-docker compose -f docker-compose.development.yml exec outpost-api-dev npm run prepare-indices;
+docker compose -f docker-compose.development.yml exec outpost-api npm run prepare-indices;
 
 # open shell in container
-docker compose -f docker-compose.development.yml exec outpost-api-dev /bin/ash;
+docker compose -f docker-compose.development.yml exec outpost-api /bin/ash;
 
 # run tests
-docker compose -f docker-compose.development.yml exec outpost-api-dev npm run test
+docker compose -f docker-compose.development.yml exec outpost-api npm run test
 
 # stop the container
 docker compose -f docker-compose.development.yml stop
