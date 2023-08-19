@@ -32,6 +32,15 @@ server.use(
 )
 
 server.use(cors())
+server.get("/health", (req, res) => {
+  const data = {
+    uptime: process.uptime(),
+    message: "Ok",
+    date: new Date(),
+  }
+
+  res.status(200).send(data)
+})
 server.use("/api/v1/", routes)
 
 server.listen(port, () => console.log(`✅ Listening on port ${port}`))
