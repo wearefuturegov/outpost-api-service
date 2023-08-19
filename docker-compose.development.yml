@@ -33,6 +33,9 @@ services:
       - 27017:27017
     volumes:
       - outpost-api-mongo-volume:/data/db
+      - ./setup-mongodb-development.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
+    environment:
+      MONGO_INITDB_DATABASE: outpost_api_development
     networks:
       - outpos_api_external_network
 

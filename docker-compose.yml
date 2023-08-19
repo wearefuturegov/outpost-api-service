@@ -20,7 +20,7 @@ services:
       - ./:/usr/src/app
     environment:
       NODE_ENV: production
-      DB_URI: mongodb://mongo:27017/outpost_api_development
+      DB_URI: mongodb://mongo:27017/outpost_api
     networks:
       - outpos_api_internal_network
       - outpos_api_external_network
@@ -33,6 +33,7 @@ services:
       - 27017:27017
     volumes:
       - outpost-api-mongo-volume:/data/db
+      - ./setup-mongodb-production.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
     networks:
       - outpos_api_external_network
 
