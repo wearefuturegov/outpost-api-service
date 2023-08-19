@@ -36,7 +36,7 @@ To run it on your machine you need Node.js, npm, nvm (https://github.com/nvm-sh/
 
 It expects a few environment variables.
 
-`DATABASE_URL`
+`DB_URI`
 
 - MongoDB connection URI nb if you're running in a docker container and want to connect to your local db use `host.docker.internal` instead of `localhost`
 
