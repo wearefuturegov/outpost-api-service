@@ -4,14 +4,21 @@ services:
     stdin_open: true
     image: "outpost-api:development"
     container_name: outpost-api-dev
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3001/health"]
+      interval: 1m30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
     depends_on:
       - mongo
     build:
       target: development
     ports:
-      - "3001"
+      - 3001:3001
     volumes:
-      - ./:/app:cached
+      - ./:/usr/src/app:cached
     environment:
       NODE_ENV: development
       DB_URI: mongodb://mongo:27017/outpost_api_development
@@ -21,12 +28,12 @@ services:
   mongo:
     image: mongo:6
     container_name: outpost-api-mongo
+    restart: unless-stopped
     ports:
       - 27017:27017
     volumes:
       - outpost-api-mongo-volume:/data/db
     networks:
-      - internal_network
       - external_network
 
 volumes:

@@ -3,25 +3,32 @@
 # base_image > build_frontend > (development | production)
 
 FROM node:16-alpine3.17 as base_image
+WORKDIR /usr/build/app
+COPY ./package.json /usr/build/app/package.json
+COPY ./package-lock.json /usr/build/app/package-lock.json
+EXPOSE 3001
 
+FROM base_image as development_base
+RUN npm ci
 
-# copy node files and install
-FROM base_image as build_frontend
-COPY ./package.json ./tmp/package.json
-COPY ./package-lock.json ./tmp/package-lock.json
-RUN cd /tmp && \
-    npm i
-WORKDIR /app
+FROM base_image as production_base
+RUN npm ci --omit=dev
+
 
 #  build and install all  the things for the development env
-FROM build_frontend as development
-COPY --from=build_frontend ./tmp ./app
-EXPOSE 3001
+FROM development_base as development
+ENV NODE_ENV development
+WORKDIR /usr/src/app
+COPY --chown=node:node --from=development_base /usr/build/app/node_modules ./
+USER node
 CMD ["npm", "run", "dev" ]
 
 
-FROM build_frontend as production
-COPY --from=build_frontend ./tmp ./
-COPY . /app
-EXPOSE 3001
+
+FROM production_base as production
+ENV NODE_ENV production
+WORKDIR /usr/src/app
+COPY --chown=node:node --from=production_base /usr/build/app/node_modules /usr/src/app
+COPY --chown=node:node . /usr/src/app
+USER node
 CMD ["npm", "run", "start" ]
