@@ -4,8 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "node index",
-    "dev": "NODE_ENV=development nodemon index",
+    "start": "node index.js",
+    "dev": "NODE_ENV=development nodemon index.js",
     "test": "jest",
     "prepare-indices": "node lib/prepare-indices"
   },
