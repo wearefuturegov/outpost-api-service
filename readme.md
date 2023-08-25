@@ -59,19 +59,19 @@ To get up and running quickly with some data use docker compose.
 git clone git@github.com:wearefuturegov/outpost-api-service.git && cd outpost-api-service
 
 # build the image
-docker compose -f docker-compose.development.yml build
+docker compose build
 
 # run the container
-docker compose -f docker-compose.development.yml up -d
+docker compose up -d
 
 # open shell in container
-docker compose -f docker-compose.development.yml exec outpost-api-dev /bin/ash;
+docker compose exec outpost-api-dev /bin/ash;
 
 # run the tests
-docker compose -f docker-compose.development.yml exec outpost-api-dev npm run test
+docker compose exec outpost-api-dev npm run test
 
 # stop the container
-docker compose -f docker-compose.development.yml stop
+docker compose stop
 ```
 
 If you want to use it in conjunction with a local mongodb database, for example you are using [Outpost](https://github.com/wearefuturegov/outpost/) you could also run it using just docker.
