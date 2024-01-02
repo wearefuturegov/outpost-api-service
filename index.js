@@ -21,9 +21,13 @@ connect(() =>
 
 server.set("trust proxy", 1)
 
+// outside of dev environment if we send FORCE_SSL then SSL is forced
 if (!isDevelopment) {
-  server.use(forceSSL)
+  if (process.env.FORCE_SSL && process.env.FORCE_SSL.toLowerCase() === "true") {
+    server.use(forceSSL)
+  }
 }
+
 server.use(
   rateLimit({
     windowMs: 15 * 60 * 1000,
