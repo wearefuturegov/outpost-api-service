@@ -1,0 +1,47 @@
+version: "3.7"
+services:
+  outpost-api:
+    image: "outpost-api:production"
+    container_name: outpost-api
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3001/health"]
+      interval: 1m30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    depends_on:
+      - mongo
+    build:
+      target: production
+    ports:
+      - 3001:3001
+    volumes:
+      - ./:/usr/src/app
+    environment:
+      NODE_ENV: production
+      DB_URI: mongodb://mongo:27017/outpost_api
+      FORCE_SSL: true
+    networks:
+      - outpost_api_internal_network
+      - outpost_api_external_network
+
+  mongo:
+    image: mongo:6
+    container_name: outpost-api-mongo
+    restart: unless-stopped
+    ports:
+      - 27017:27017
+    volumes:
+      - outpost-api-mongo-volume:/data/db
+      - ./environment/containers/mongo/setup-mongodb-production.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
+    networks:
+      - outpost_api_external_network
+
+volumes:
+  outpost-api-mongo-volume:
+
+networks:
+  outpost_api_external_network:
+  outpost_api_internal_network:
+    internal: true

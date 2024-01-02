@@ -30,13 +30,11 @@ It's not useful by itself — it depends on a public index built by [Outpost](ht
 
 It's a simple Node.js app which queries information from a MongoDB collection and publishes it as a read-only, rate-limited REST API.
 
-To run it on your machine you need Node.js, npm, nvm (https://github.com/nvm-sh/nvm) and a working MongoDB database [with the right indices](#indices) available on `localhost:27017`.
-
 ## 🧬 Configure Outpost API
 
 It expects a few environment variables.
 
-`DATABASE_URL`
+`DB_URI`
 
 - MongoDB connection URI nb if you're running in a docker container and want to connect to your local db use `host.docker.internal` instead of `localhost`
 
@@ -55,79 +53,55 @@ Other environmental variables:
 
 ## 💻 Getting started
 
-### Using docker
-
-```sh
-git clone git@github.com:wearefuturegov/outpost-api-service.git && cd outpost-api-service
-
-# build the image - if using for the first time
-docker build --tag outpost-api-service:development --target development .
-
-# run the image in local environment
-docker run -p 3001:3001 --name outpost-api-service -v $(pwd):/app:cached -i -d outpost-api-service:development
-
-# setup indices
-docker exec -it outpost-api-service npm run prepare-indices
-
-# access the site
-open http://localhost:3001/api/v1/services
-
-# open shell in container
-docker exec -it outpost-api-service /bin/ash;
-
-# run tests
-docker exec -it outpost-api-service npm run test
-
-# stop the container
-docker stop outpost-api-service
-
-# start again
-docker start outpost-api-service
-```
-
-### Using docker-compose
+To get up and running quickly with some data use docker compose.
 
 ```sh
 git clone git@github.com:wearefuturegov/outpost-api-service.git && cd outpost-api-service
 
 # build the image
-docker compose -f docker-compose.development.yml build
+docker compose build
 
 # run the container
-docker compose -f docker-compose.development.yml up -d
-
-# setup indices
-docker compose -f docker-compose.development.yml exec outpost-api-dev npm run prepare-indices;
+docker compose up -d
 
 # open shell in container
-docker compose -f docker-compose.development.yml exec outpost-api-dev /bin/ash;
+docker compose exec outpost-api-dev /bin/ash;
 
-# run tests
-docker compose -f docker-compose.development.yml exec outpost-api-dev npm run test
+# run the tests
+docker compose exec outpost-api-dev npm run test
 
 # stop the container
-docker compose -f docker-compose.development.yml stop
-
+docker compose stop
 ```
 
-### On your machine
+If you want to use it in conjunction with a local mongodb database, for example you are using [Outpost](https://github.com/wearefuturegov/outpost/) you could also run it using just docker.
 
-To run it on your machine you need Node.js, npm, nvm (https://github.com/nvm-sh/nvm) and a working MongoDB database [with the right indices](#indices) available on `localhost:27017`.
+```sh
+git clone git@github.com:wearefuturegov/outpost-api-service.git && cd outpost-api-service
 
-```
-# use the right node version
-nvm use
+# build the image - if using for the first time
+docker build --tag outpost-api-dev --target development .
 
-# install npm packages
-npm i
+# run the image in local environment
+docker run -p 3001:3001 --name outpost-api-dev -v $(pwd):/usr/src/app:cached -i -d outpost-api-dev
 
-# if this is your first time installing it prepare the database
-npm run prepare-indices
+# setup indices
+docker exec -it outpost-api-dev npm run prepare-indices
 
-# start the local development server
-npm run dev
+# access the site
+open http://localhost:3001/api/v1/services
 
-# outpost api is running on http://localhost:3001
+# open shell in container
+docker exec -it outpost-api-dev /bin/ash;
+
+# run tests
+docker exec -it outpost-api-dev npm run test
+
+# stop the container
+docker stop outpost-api-dev
+
+# start again
+docker start outpost-api-dev
 ```
 
 ## Deploying it
@@ -140,7 +114,7 @@ It's suitable for 12-factor hosting like Heroku. It has a [Procfile](https://dev
 npm start
 ```
 
-You can also deploy via docker
+You can also deploy via docker compose
 
 ```sh
 # build the image
@@ -150,13 +124,41 @@ docker compose build
 docker compose up -d
 ```
 
+and docker
+
+```sh
+# build the image
+docker build  --tag outpost-api --target production .
+
+# run the container
+docker run -p 3001:3001/tcp --name outpost-api -i -d outpost-api
+```
+
+## Mongodb container running in docker
+
+```sh
+docker run -p 27017:27017/tcp \
+--name outpost-api-mongo  \
+-e MONGO_INITDB_DATABASE=outpost_api \
+--volume outpost-api-mongo-volume:/data/db \
+--volume $(pwd)/setup-mongodb-production.js:/docker-entrypoint-initdb.d/mongo-init.js:ro -i -d mongo:6
+```
+
+-v $(pwd):/usr/src/app
+
 ## Indices
 
 It needs the right indices on the MongoDB collection to enable full-text and geo search. Something like:
 
 ```
+
 db.indexed_services.createIndex({ name: "text", description: "text" })
 db.indexed_services.createIndex({ "locations.coordinates": "2dsphere" })
+
 ```
 
 You can create these two, plus an index of taxonomy slugs, automatically with the `npm run prepare-indices` command.
+
+```
+
+```

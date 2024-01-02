@@ -1,14 +1,16 @@
 {
-  "name": "api_service",
+  "name": "@outpost_platform/api_service",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "node index",
-    "dev": "NODE_ENV=development nodemon index",
+    "start": "node index.js",
+    "dev": "NODE_ENV=development nodemon index.js",
     "test": "jest",
+    "prepare-collection": "node lib/prepare-collection",
     "prepare-indices": "node lib/prepare-indices"
   },
+  "test": "exit 0",
   "keywords": [],
   "author": "",
   "license": "ISC",

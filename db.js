@@ -1,5 +1,5 @@
 const { MongoClient } = require("mongodb")
-const uri = process.env.DATABASE_URL
+const uri = process.env.DB_URI
 
 let db
 
