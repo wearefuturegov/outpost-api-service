@@ -1,49 +1,33 @@
-Procfile
-makefile
-
 # git
 .git
 .gitattributes
 .gitignore
 .github
 
-# docker
-docker-compose.yml
-docker-compose.*
-Dockerfile
-.dockerignore
-environment/
-
-# environment and secretsss
+# env
 .env
+.env.*
 
-# Common
-README.md
-CHANGELOG.md
+# node
+node_modules
+
+# misc
+.DS_Store
+*.swp
+*~
 
 # logs
-logs
+log/*
 *.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
-/log/*
-!/log/.keep
-
-# tmp
-/tmp/*
-!/tmp/.keep
-*.swp
-*~
-.DS_Store
-
-# Dependencies and dependency managers
-node_modules/
-# Ignore yarn files
-/yarn-error.log
-yarn-debug.log*
 .yarn-integrity
 
-# ides
+# Added in case image is built locally without fresh checkout
 .idea
 .vscode
+.ruby-lsp
+
+# heroku
+Procfile

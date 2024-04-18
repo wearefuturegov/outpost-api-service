@@ -8,7 +8,8 @@
     "dev": "NODE_ENV=development nodemon index.js",
     "test": "jest",
     "prepare-collection": "node lib/prepare-collection",
-    "prepare-indices": "node lib/prepare-indices"
+    "prepare-indices": "node lib/prepare-indices",
+    "dummy-data": "node lib/dummy-data"
   },
   "test": "exit 0",
   "keywords": [],

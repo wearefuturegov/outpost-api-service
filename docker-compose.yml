@@ -1,10 +1,28 @@
 version: "3.7"
 services:
-  outpost-api-dev:
-    stdin_open: true
-    image: "outpost-api:development"
-    container_name: outpost-api-dev
-    restart: unless-stopped
+  # Outpost api
+
+  app:
+    image: "outpost_api:development"
+    build:
+      context: .
+      # uncomment for 'prod' like env locally
+      # NODE_ENV: production
+    container_name: outpost-api-service
+    # use if you just want to keep the container running
+    # entrypoint: ["tail"]
+    # command: ["-f", "/dev/null"]
+    environment:
+      DATABASE_URL: mongodb://${MONGO_INITDB_ROOT_USERNAME:-outpost}:${MONGO_INITDB_ROOT_PASSWORD:-password}@mongo/${MONGO_INITDB_DATABASE:-outpost_api_development}?retryWrites=true&w=majority
+    platform: linux/amd64
+    volumes:
+      - ./:/app:cached
+      - /app/node_modules
+    ports:
+      - 3001:3000
+    networks:
+      - internal_network
+      - external_network
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:3001/health"]
       interval: 1m30s
@@ -13,36 +31,21 @@ services:
       start_period: 40s
     depends_on:
       - mongo
-    build:
-      target: development
-    ports:
-      - 3001:3001
-    volumes:
-      - ./:/usr/src/app:cached
-    environment:
-      NODE_ENV: development
-      DB_URI: mongodb://mongo:27017/outpost_api_development
-    networks:
-      - outpost_api_dev_external_network
-      - outpost_api_dev_internal_network
+
+  # Databases
+
   mongo:
-    image: mongo:6
-    container_name: outpost-api-mongo
-    restart: unless-stopped
-    ports:
-      - 27017:27017
-    volumes:
-      - outpost-api-dev-mongo-volume:/data/db
-      - ./environment/containers/mongo/setup-mongodb-development.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
-    environment:
-      MONGO_INITDB_DATABASE: outpost_api_development
+    extends:
+      file: ./.docker/services/mongo/mongo.yml
+      service: mongo
     networks:
-      - outpost_api_dev_external_network
+      - external_network
+      - internal_network
 
 volumes:
-  outpost-api-dev-mongo-volume:
+  mongo-volume:
 
 networks:
-  outpost_api_dev_external_network:
-  outpost_api_dev_internal_network:
+  external_network:
+  internal_network:
     internal: true
