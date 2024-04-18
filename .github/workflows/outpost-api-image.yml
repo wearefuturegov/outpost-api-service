@@ -4,8 +4,7 @@ name: Deploy outpost api image to github container registry
 
 on:
   push:
-    # branches: [develop, staging, production]
-    branches: [feature/docker-package]
+    branches: [develop, staging, production]
 
 jobs:
   push-outpost-api-image:
@@ -31,8 +30,6 @@ jobs:
             echo "::set-output name=tag::staging"
           elif [[ "$BRANCH_NAME" == "production" ]]; then
             echo "::set-output name=tag::latest"
-          elif [[ "$BRANCH_NAME" == "feature/docker-package" ]]; then
-            echo "::set-output name=tag::docker-package"
           fi
 
       - name: Build and push outpost api docker image
