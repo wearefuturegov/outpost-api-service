@@ -5,7 +5,7 @@ let db
 
 module.exports = {
   connect: cb => {
-    MongoClient.connect(uri, { useUnifiedTopology: true })
+    MongoClient.connect(uri)
       .then(client => {
         db = client.db()
         cb(db)

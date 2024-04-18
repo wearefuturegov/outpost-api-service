@@ -28,6 +28,7 @@ yarn-error.log*
 .idea
 .vscode
 .ruby-lsp
+coverage
 
 # heroku
 Procfile
