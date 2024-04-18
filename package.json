@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node index.js",
     "dev": "NODE_ENV=development nodemon index.js",
-    "test": "jest --coverage",
+    "test": "jest",
     "prepare-collection": "node lib/prepare-collection",
     "prepare-indices": "node lib/prepare-indices",
     "dummy-data": "node lib/dummy-data"
