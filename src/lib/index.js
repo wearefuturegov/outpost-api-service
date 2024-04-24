@@ -3,14 +3,14 @@ const haversine = require("haversine")
 const fetch = require("isomorphic-unfetch")
 
 module.exports = {
-  calculateDistance: (query, locations) => {
+  calculateDistance: (lat, lng, locations) => {
     let distances = []
     locations.forEach(location => {
       distances.push(
         haversine(
           {
-            latitude: query.lat,
-            longitude: query.lng,
+            latitude: lat,
+            longitude: lng,
           },
           {
             latitude: location.geometry.coordinates[1],
