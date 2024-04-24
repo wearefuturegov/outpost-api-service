@@ -1,5 +1,5 @@
 const { MongoClient } = require("mongodb")
-const logger = require("./utils/logger")
+const logger = require("../utils/logger")
 const uri = process.env.DB_URI
 
 // @TODO test mongodb://outpost:password@mongo/outpost_api_development?retryWrites=true&w=majority

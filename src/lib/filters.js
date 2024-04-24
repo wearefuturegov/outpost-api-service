@@ -47,10 +47,10 @@ module.exports = {
    * @param  {...any} args
    * @returns
    */
-  filterKeywords: async (keywords, ...args) => {
+  filterKeywords: async (keywords, locationInQuery = false) => {
     let query = {}
     if (keywords) {
-      if (args.filter(n => n).length > 0) {
+      if (locationInQuery) {
         const Service = db().collection("indexed_services")
         const docs = await Service.find({
           $text: { $search: keywords },

@@ -4,7 +4,7 @@ const config = {
   collectCoverage: true,
   coverageReporters: ["clover", "json", "lcov", "html", "text"],
   collectCoverageFrom: [
-    "**/*.{js,jsx}",
+    "src/**/*.{js,jsx}",
     "!**/node_modules/**",
     "!**/vendor/**",
     "!**/coverage/**",

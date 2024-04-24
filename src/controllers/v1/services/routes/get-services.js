@@ -1,7 +1,7 @@
 const filters = require("../../../../lib/filters")
 const { calculateDistance, geocode, projection } = require("../../../../lib")
 const { db } = require("../../../../db")
-const logger = require("../../../../utils/logger")
+const logger = require("../../../../../utils/logger")
 
 module.exports = {
   /**
@@ -9,30 +9,30 @@ module.exports = {
    * @param {*} req
    * @returns
    */
-  parseRequestParameters: async req => {
-    const perPage = parseInt(req.query.per_page) || 50
-    const page = parseInt(req.query.page) || 1
-    const keywords = req.query.keywords
-    const location = req.query.location
-    let lat = req.query.lat
-    let lng = req.query.lng
-    let targetDirectories = req.query?.targetDirectories
-      ? [].concat(req.query.targetDirectories)
+  parseRequestParameters: async queryParams => {
+    const perPage = parseInt(queryParams.per_page) || 50
+    const page = parseInt(queryParams.page) || 1
+    const keywords = queryParams.keywords
+    const location = queryParams.location
+    let lat = parseFloat(queryParams.lat) || undefined
+    let lng = parseFloat(queryParams.lng) || undefined
+    let targetDirectories = queryParams?.targetDirectories
+      ? [].concat(queryParams.targetDirectories)
       : []
-    let taxonomies = req.query?.taxonomies
-      ? [].concat(req.query.taxonomies)
+    let taxonomies = queryParams?.taxonomies
+      ? [].concat(queryParams.taxonomies)
       : []
-    let needs = req.query?.needs ? [].concat(req.query.needs) : []
-    let suitabilities = req.query?.suitabilities
-      ? [].concat(req.query.suitabilities)
+    let needs = queryParams?.needs ? [].concat(queryParams.needs) : []
+    let suitabilities = queryParams?.suitabilities
+      ? [].concat(queryParams.suitabilities)
       : []
-    let accessibilities = req.query?.accessibilities
-      ? [].concat(req.query.accessibilities)
+    let accessibilities = queryParams?.accessibilities
+      ? [].concat(queryParams.accessibilities)
       : []
-    let days = req.query?.days ? [].concat(req.query.days) : []
-    const only = req.query.only
-    const minAge = req.query.min_age
-    const maxAge = req.query.max_age
+    let days = queryParams?.days ? [].concat(queryParams.days) : []
+    let only = queryParams?.only ? [].concat(queryParams.only) : []
+    const minAge = parseInt(queryParams.min_age) || undefined
+    const maxAge = parseInt(queryParams.max_age) || undefined
 
     // not a param but we want to save on requests
     let interpreted_location
@@ -50,14 +50,20 @@ module.exports = {
       ...new Set(accessibilities.flatMap(str => str.split(","))),
     ]
     days = [...new Set(days.flatMap(str => str.split(",")))]
+    only = [...new Set(only.flatMap(str => str.split(",")))]
 
     // if we have a location then we can find lat lng
     if (location && !(lat && lng)) {
-      let { results } = await geocode(req.query.location)
-      if (results[0]) {
-        interpreted_location = results[0].formatted_address
-        lng = results[0].geometry.location.lng
-        lat = results[0].geometry.location.lat
+      try {
+        const { results } = await geocode(queryParams.location)
+        logger.debug(results)
+        if (results[0]) {
+          interpreted_location = results[0].formatted_address
+          lng = parseInt(results[0].geometry.location.lng)
+          lat = parseInt(results[0].geometry.location.lat)
+        }
+      } catch (error) {
+        logger.warn(error)
       }
     }
 
@@ -89,11 +95,13 @@ module.exports = {
     let query = {}
     query.$and = []
 
+    const locationInQuery =
+      parameters.location !== undefined ||
+      parameters.lat !== undefined ||
+      parameters.lng !== undefined
     const filterKeywords = await filters.filterKeywords(
       parameters.keywords,
-      parameters.location,
-      parameters.lat,
-      parameters.lng
+      locationInQuery
     )
     query = { ...filterKeywords, ...query }
 
@@ -176,7 +184,9 @@ module.exports = {
     const Service = db().collection("indexed_services")
     const countQuery = this.createCountQuery(query)
 
+    logger.debug("query")
     logger.debug(query)
+    logger.debug("countQuery")
     logger.debug(countQuery)
 
     const [results, count] = await Promise.all([

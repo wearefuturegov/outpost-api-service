@@ -26,6 +26,12 @@ module.exports = {
   },
 
   geocode: async location => {
+    if (!process.env.GOOGLE_API_KEY || !location) {
+      throw new Error(
+        "GOOGLE_API_KEY and or location are not set, unable to geocode locations"
+      )
+    }
+
     const response = await fetch(
       `https://maps.googleapis.com/maps/api/geocode/json?address=${location}&region=uk&key=${process.env.GOOGLE_API_KEY}`
     )

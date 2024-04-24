@@ -7,9 +7,10 @@
     "start": "node index.js",
     "dev": "NODE_ENV=development nodemon index.js",
     "test": "jest",
-    "prepare-collection": "node lib/prepare-collection",
-    "prepare-indices": "node lib/prepare-indices",
-    "dummy-data": "node lib/dummy-data"
+    "test-watch": "jest --watchAll --detectOpenHandles",
+    "prepare-collection": "node utils/prepare-collection",
+    "prepare-indices": "node utils/prepare-indices",
+    "dummy-data": "node utils/dummy-data"
   },
   "test": "exit 0",
   "keywords": [],

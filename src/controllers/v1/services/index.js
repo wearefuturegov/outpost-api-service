@@ -1,4 +1,4 @@
-const logger = require("../../../utils/logger")
+const logger = require("../../../../utils/logger")
 const { getServices, getService } = require("./routes")
 
 module.exports = {
@@ -30,7 +30,7 @@ module.exports = {
    */
   index: async (req, res, next) => {
     try {
-      const parameters = await getServices.parseRequestParameters(req)
+      const parameters = await getServices.parseRequestParameters(req.query)
       logger.http(parameters)
 
       const query = await getServices.buildQuery(parameters)
