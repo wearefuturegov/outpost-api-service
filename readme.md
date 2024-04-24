@@ -114,7 +114,7 @@ The following environmental variables are required.
 
 | Variable         | Description        | Example                                                              | Required? |
 | ---------------- | ------------------ | -------------------------------------------------------------------- | --------- |
-| `DB_URI`   | Mongo database url | `mongodb://outpost:password@localhost:27018/outpost_api_development` | Yes       |
+| `DB_URI`         | Mongo database url | `mongodb://outpost:password@localhost:27018/outpost_api_development` | Yes       |
 | `GOOGLE_API_KEY` | Google API Key     | `1234`                                                               | Yes       |
 
 # ✨ Features
@@ -142,17 +142,17 @@ We provide scripts to initialise the database once its been created.
 ```sh
 docker run -it --rm \
 --env-file .env \
--e DB_URI=mongodb://outpost:password@host.docker.internal:27018/ \
+-e DB_URI=mongodb://outpost:password@host.docker.internal:27018/outpost_api_development \
 outpost-api-service:production prepare-collection
 
 docker run -it --rm \
 --env-file .env \
--e DB_URI=mongodb://outpost:password@host.docker.internal:27018/ \
+-e DB_URI=mongodb://outpost:password@host.docker.internal:27018/outpost_api_development \
 outpost-api-service:production prepare-indices
 
 docker run -it --rm \
 --env-file .env \
--e DB_URI=mongodb://outpost:password@host.docker.internal:27018/ \
+-e DB_URI=mongodb://outpost:password@host.docker.internal:27018/outpost_api_development \
 outpost-api-service:production dummy-data
 ```
 

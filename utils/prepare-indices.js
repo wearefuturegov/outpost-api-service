@@ -1,5 +1,5 @@
 require("dotenv").config()
-const { connect } = require("../db")
+const { connect } = require("../src/db")
 const logger = require("./logger")
 
 connect(async db => {
