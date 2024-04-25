@@ -120,41 +120,41 @@ module.exports = {
    *  ]
    *}
    * taxonomies=taxonomies=advice-and-support&taxonomies=health-and-wellbeing
-   * targetDirectories=bod
+   * directories=bod
    * { "target_directories.label": { "$in": ["bfis", "bod"] } }
    *  [ 'fis', 'bod' ]
    * @TODO test http://localhost:3001/api/v1/services?taxonomies=things-to-do
    * @TODO test http://localhost:3001/api/v1/services?taxonomies=things-to-dotaxonomies=parks-and-outdoor-spaces
    * @TODO test http://localhost:3001/api/v1/services?taxonomies=things-to-do&taxonomies=things-to-do&taxonomies=parks-and-outdoor-spaces
-   * @param {*} targetDirectories
+   * NB previously this was a $in query
+   * {$and: [{'taxonomies.slug': {$in: ['tax1', 'tax2']}}]}
+   * which would return services with tax1 or tax2 but ORUK states that all queries are AND queries
+   * @param {*} directories
    */
   filterTaxonomies: taxonomies => {
-    let query = []
-    if (taxonomies) {
-      taxonomies.forEach(cluster => {
-        query.push({
-          "taxonomies.slug": { $in: [].concat(cluster.split(",")) },
-        })
-      })
+    if (taxonomies?.length > 0) {
+      return {
+        "taxonomies.slug": { $all: taxonomies },
+      }
     }
-    return query
+    return {}
   },
 
   /**
    * Specify the directory to search for services
-   * targetDirectories=bod,bfis
-   * targetDirectories=bod
+   * directories=bod,bfis
+   * directories=bod
    * { "target_directories.label": { "$in": ["bfis", "bod"] } }
    *  [ 'fis', 'bod' ]
-   * @TODO test http://localhost:3001/api/v1/services?targetDirectories=bfis,bod&targetDirectories=bfis,bod
-   * @TODO test http://localhost:3001/api/v1/services?targetDirectories=bfis,bod
-   * @TODO test http://localhost:3001/api/v1/services?targetDirectories=bfis
-   * @param {*} targetDirectories
+   * @TODO test http://localhost:3001/api/v1/services?directories=bfis,bod&directories=bfis,bod
+   * @TODO test http://localhost:3001/api/v1/services?directories=bfis,bod
+   * @TODO test http://localhost:3001/api/v1/services?directories=bfis
+   * @param {*} directories
    */
-  filterTargetDirectories: targetDirectories => {
-    if (targetDirectories?.length > 0) {
+  filterDirectories: directories => {
+    if (directories?.length > 0) {
       return {
-        "target_directories.label": { $in: targetDirectories },
+        "directories.label": { $in: directories },
       }
     }
     return {}

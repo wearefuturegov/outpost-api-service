@@ -23,7 +23,7 @@ describe("get-services", () => {
         location: undefined,
         lat: undefined,
         lng: undefined,
-        targetDirectories: [],
+        directories: [],
         taxonomies: [],
         needs: [],
         suitabilities: [],
@@ -172,22 +172,22 @@ describe("get-services", () => {
       })
     })
 
-    describe("targetDirectories", () => {
-      it("should return undefined if targetDirectories are not provided", async () => {
-        const { targetDirectories } = await parseRequestParameters({})
-        expect(targetDirectories).toEqual([])
+    describe("directories", () => {
+      it("should return undefined if directories are not provided", async () => {
+        const { directories } = await parseRequestParameters({})
+        expect(directories).toEqual([])
       })
       it("should return a unique array multiple targets are passed through", async () => {
-        const { targetDirectories } = await parseRequestParameters({
-          targetDirectories: ["a", "b,a"],
+        const { directories } = await parseRequestParameters({
+          directories: ["a", "b,a"],
         })
-        expect(new Set(targetDirectories)).toEqual(new Set(["a", "b"]))
+        expect(new Set(directories)).toEqual(new Set(["a", "b"]))
       })
       it("should return a unique array one target is passed through", async () => {
-        const { targetDirectories } = await parseRequestParameters({
-          targetDirectories: ["a,b"],
+        const { directories } = await parseRequestParameters({
+          directories: ["a,b"],
         })
-        expect(new Set(targetDirectories)).toEqual(new Set(["a", "b"]))
+        expect(new Set(directories)).toEqual(new Set(["a", "b"]))
       })
     })
 
@@ -196,17 +196,17 @@ describe("get-services", () => {
         const { taxonomies } = await parseRequestParameters({})
         expect(taxonomies).toEqual([])
       })
-      it("should return an array multiple targets are passed through", async () => {
+      it("should return a unique array multiple targets are passed through", async () => {
         const { taxonomies } = await parseRequestParameters({
           taxonomies: ["a", "b,a"],
         })
-        expect(new Set(taxonomies)).toEqual(new Set(["a", "b,a"]))
+        expect(new Set(taxonomies)).toEqual(new Set(["a", "b"]))
       })
       it("should return a unique array one target is passed through", async () => {
         const { taxonomies } = await parseRequestParameters({
           taxonomies: ["a,b"],
         })
-        expect(new Set(taxonomies)).toEqual(new Set(["a,b"]))
+        expect(new Set(taxonomies)).toEqual(new Set(["a", "b"]))
       })
     })
 

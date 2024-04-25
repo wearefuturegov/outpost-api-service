@@ -16,8 +16,8 @@ module.exports = {
     const location = queryParams.location
     let lat = parseFloat(queryParams.lat) || undefined
     let lng = parseFloat(queryParams.lng) || undefined
-    let targetDirectories = queryParams?.targetDirectories
-      ? [].concat(queryParams.targetDirectories)
+    let directories = queryParams?.directories
+      ? [].concat(queryParams.directories)
       : []
     let taxonomies = queryParams?.taxonomies
       ? [].concat(queryParams.taxonomies)
@@ -41,9 +41,8 @@ module.exports = {
     // if the query param is used more than once for these fields
     // combine them and make sure they are unique
     // so ?suitabilities=a&suitabilities=b,a becomes suitabilities=[a,b]
-    targetDirectories = [
-      ...new Set(targetDirectories.flatMap(str => str.split(","))),
-    ]
+    directories = [...new Set(directories.flatMap(str => str.split(",")))]
+    taxonomies = [...new Set(taxonomies.flatMap(str => str.split(",")))]
     needs = [...new Set(needs.flatMap(str => str.split(",")))]
     suitabilities = [...new Set(suitabilities.flatMap(str => str.split(",")))]
     accessibilities = [
@@ -74,7 +73,7 @@ module.exports = {
       location,
       lat,
       lng,
-      targetDirectories,
+      directories,
       taxonomies,
       needs,
       suitabilities,
@@ -111,10 +110,6 @@ module.exports = {
     )
     query = { ...locationGeometry, ...query }
 
-    // add filtering for taxonomies
-    const taxonomies = filters.filterTaxonomies(parameters.taxonomies)
-    query.$and.push(...taxonomies)
-
     // add filtering for ages
     const ages = filters.filterAges(parameters.minAge, parameters.maxAge)
     query.$and.push(...ages)
@@ -129,7 +124,8 @@ module.exports = {
 
     // add filtering
     query.$and.push(
-      filters.filterTargetDirectories(parameters.targetDirectories),
+      filters.filterDirectories(parameters.directories),
+      filters.filterTaxonomies(parameters.taxonomies),
       filters.filterNeeds(parameters.needs),
       filters.filterSuitabilities(parameters.suitabilities),
       filters.filterAccessibilities(parameters.accessibilities),
@@ -186,8 +182,10 @@ module.exports = {
 
     logger.debug("query")
     logger.debug(query)
+    logger.debug(JSON.stringify(query))
     logger.debug("countQuery")
     logger.debug(countQuery)
+    logger.debug(JSON.stringify(countQuery))
 
     const [results, count] = await Promise.all([
       Service.find(query)

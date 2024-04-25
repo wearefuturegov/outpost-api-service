@@ -14,7 +14,7 @@ module.exports = {
    * @param {string} [req.query.location] - Location for geospatial search.
    * @param {number} [req.query.lat] - Latitude for geospatial search.
    * @param {number} [req.query.lng] - Longitude for geospatial search.
-   * @param {string|string[]} [req.query.targetDirectories] - Target directories to filter services.
+   * @param {string|string[]} [req.query.directories] - Target directories to filter services.
    * @param {string|string[]} [req.query.taxonomies] - Taxonomies to filter services.
    * @param {string|string[]} [req.query.needs] - Needs to filter services.
    * @param {string|string[]} [req.query.suitabilities] - Suitabilities to filter services.
@@ -31,7 +31,7 @@ module.exports = {
   index: async (req, res, next) => {
     try {
       const parameters = await getServices.parseRequestParameters(req.query)
-      logger.http(parameters)
+      logger.info(parameters)
 
       const query = await getServices.buildQuery(parameters)
 

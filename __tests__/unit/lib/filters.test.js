@@ -119,8 +119,8 @@ describe("filterOnly", () => {
 })
 
 describe("filterTaxonomies", () => {
-  it("should return an empty array if taxonomies is not provided", () => {
-    expect(filters.filterTaxonomies()).toEqual([])
+  it("should return an empty object if taxonomies is not provided", () => {
+    expect(filters.filterTaxonomies()).toEqual({})
   })
 
   it("should return a query array if taxonomies is provided", () => {
@@ -129,49 +129,35 @@ describe("filterTaxonomies", () => {
       "clubs-and-groups,holiday-activities,dance-drama-and-music",
       "youth-clubs,gaming,sports-courses-and-camps,dance-drama-and-music",
     ]
-    const expectedQuery = [
-      { "taxonomies.slug": { $in: ["things-to-do"] } },
-      {
-        "taxonomies.slug": {
-          $in: [
-            "clubs-and-groups",
-            "holiday-activities",
-            "dance-drama-and-music",
-          ],
-        },
+    const expectedQuery = {
+      "taxonomies.slug": {
+        $all: [
+          "things-to-do",
+          "clubs-and-groups,holiday-activities,dance-drama-and-music",
+          "youth-clubs,gaming,sports-courses-and-camps,dance-drama-and-music",
+        ],
       },
-      {
-        "taxonomies.slug": {
-          $in: [
-            "youth-clubs",
-            "gaming",
-            "sports-courses-and-camps",
-            "dance-drama-and-music",
-          ],
-        },
-      },
-    ]
+    }
+
     expect(filters.filterTaxonomies(taxonomies)).toEqual(expectedQuery)
   })
 })
 
-describe("filterTargetDirectories", () => {
-  it("should return an empty object if targetDirectories is not provided", () => {
-    expect(filters.filterTargetDirectories()).toEqual({})
+describe("filterDirectories", () => {
+  it("should return an empty object if directories is not provided", () => {
+    expect(filters.filterDirectories()).toEqual({})
   })
 
-  it("should return an empty object if targetDirectories is an empty array", () => {
-    expect(filters.filterTargetDirectories([])).toEqual({})
+  it("should return an empty object if directories is an empty array", () => {
+    expect(filters.filterDirectories([])).toEqual({})
   })
 
-  it("should return a query object if targetDirectories is provided", () => {
-    const targetDirectories = ["bfis", "bod"]
+  it("should return a query object if directories is provided", () => {
+    const directories = ["bfis", "bod"]
     const expectedQuery = {
-      "target_directories.label": { $in: targetDirectories },
+      "directories.label": { $in: directories },
     }
-    expect(filters.filterTargetDirectories(targetDirectories)).toEqual(
-      expectedQuery
-    )
+    expect(filters.filterDirectories(directories)).toEqual(expectedQuery)
   })
 })
 
