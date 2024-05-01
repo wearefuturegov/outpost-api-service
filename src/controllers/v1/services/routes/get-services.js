@@ -187,12 +187,21 @@ module.exports = {
     logger.debug(countQuery)
     logger.debug(JSON.stringify(countQuery))
 
+    const queryProjection = query.$text
+      ? {
+          ...projection,
+          score: { $meta: "textScore" },
+        }
+      : {
+          ...projection,
+        }
+
     const [results, count] = await Promise.all([
       Service.find(query)
-        .project({
-          ...projection,
-        })
-        .sort(query.$text ? { score: { $meta: "textScore" } } : {})
+        .project(queryProjection)
+        .sort(
+          query.$text ? { score: { $meta: "textScore" } } : { updated_at: -1 }
+        )
         .limit(perPage)
         .skip((page - 1) * perPage)
         .toArray(),

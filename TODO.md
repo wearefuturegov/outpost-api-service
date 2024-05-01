@@ -3,3 +3,4 @@
 - [x] Automate tests with docker and github actions
 - [ ] Automatic linter on commit and PR's
 - [x] An option to push some dummy data to the API
+- [ ] Add support for csv export https://developers.openreferraluk.org/API-Guidance/
