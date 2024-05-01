@@ -10,7 +10,7 @@ const v1 = require("./src/controllers/v1")
 
 const router = express.Router()
 const server = express()
-const port = process.env.NODE_PORT || 3000
+const port = process.env.PORT || 3000
 const environment = process.env.NODE_ENV || "production"
 const isDevelopment = environment === "development"
 
