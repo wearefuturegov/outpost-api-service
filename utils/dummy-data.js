@@ -1,5 +1,6 @@
 require("dotenv").config()
-const { connect } = require("../db")
+const { connect } = require("../src/db")
+const logger = require("./logger")
 
 connect(async db => {
   //  @TODO make sure when we do this we do it on the right db!
@@ -83,14 +84,14 @@ connect(async db => {
           local_offer: null,
         },
       ])
-      console.log("✅ Added dummy data to 'indexed_services' collection")
+      logger.info("✅ Added dummy data to 'indexed_services' collection")
       process.exit()
     } catch (e) {
-      console.log(e)
+      logger.error(e)
       throw e
     }
   } else {
-    console.log("🚫 'indexed_services' collection doesn't exist yet")
+    logger.warn("🚫 'indexed_services' collection doesn't exist yet")
     process.exit()
   }
 })

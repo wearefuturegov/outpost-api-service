@@ -1,5 +1,6 @@
 require("dotenv").config()
-const { connect } = require("../db")
+const { connect } = require("../src/db")
+const logger = require("./logger")
 
 connect(async db => {
   try {
@@ -21,9 +22,9 @@ connect(async db => {
     await db.collection("indexed_services").createIndex({
       "taxonomies.slug": 1,
     })
-    console.log("✅ Indices created successfully")
+    logger.info("✅ Indices created successfully")
     process.exit()
   } catch (e) {
-    console.log(e)
+    logger.error(e)
   }
 })

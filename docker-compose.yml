@@ -13,7 +13,7 @@ services:
     # entrypoint: ["tail"]
     # command: ["-f", "/dev/null"]
     environment:
-      DATABASE_URL: mongodb://${MONGO_INITDB_ROOT_USERNAME:-outpost}:${MONGO_INITDB_ROOT_PASSWORD:-password}@mongo/${MONGO_INITDB_DATABASE:-outpost_api_development}?retryWrites=true&w=majority
+      DB_URI: mongodb://${MONGO_INITDB_USERNAME:-outpost}:${MONGO_INITDB_PASSWORD:-password}@mongo/${MONGO_INITDB_DATABASE:-outpost_api_development}
     platform: linux/amd64
     volumes:
       - ./:/app:cached

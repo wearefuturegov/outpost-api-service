@@ -1,7 +1,7 @@
 ARG NODE_ENV=development
 
 # ----------------------------------------------------------------
-FROM node:16-alpine3.17 as build_frontend
+FROM node:iron-alpine as build_frontend
 ARG NODE_ENV
 ENV NODE_ENV $NODE_ENV
 

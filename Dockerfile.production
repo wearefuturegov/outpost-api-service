@@ -2,7 +2,7 @@ ARG NODE_ENV=production
 ARG FORCE_SSL=true
 
 # ----------------------------------------------------------------
-FROM node:16-alpine3.17 as build_frontend
+FROM node:iron-alpine as build_frontend
 ARG NODE_ENV
 ARG FORCE_SSL
 ENV NODE_ENV $NODE_ENV

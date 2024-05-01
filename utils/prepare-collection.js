@@ -1,5 +1,6 @@
 require("dotenv").config()
-const { connect } = require("../db")
+const { connect } = require("../src/db")
+const logger = require("./logger")
 
 connect(async db => {
   //  @TODO make sure when we do this we do it on the right db!
@@ -12,14 +13,14 @@ connect(async db => {
   if (!indexedServicesDb) {
     try {
       await db.createCollection("indexed_services")
-      console.log("✅ 'indexed_services' Collection created successfully")
+      logger.info("✅ 'indexed_services' Collection created successfully")
       process.exit()
     } catch (e) {
-      console.log(e)
+      logger.error(e)
       throw e
     }
   } else {
-    console.log("✅ 'indexed_services' Collection already exists")
+    logger.warn("✅ 'indexed_services' Collection already exists")
     process.exit()
   }
 })
