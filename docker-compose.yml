@@ -1,35 +1,49 @@
 version: "3.7"
 services:
-  outpost-api:
-    image: "outpost-api:production"
-    container_name: outpost-api
-    restart: unless-stopped
-    depends_on:
-      - mongo
-    build:
-      target: production
-    ports:
-      - "3001"
-    volumes:
-      - ./:/app
-    environment:
-      NODE_ENV: production
-    networks:
-      - internal_network
+  # Outpost api
 
-  mongo:
-    image: mongo:6
-    container_name: outpost-api-mongo
-    ports:
-      - 27017:27017
+  app:
+    image: "outpost_api:development"
+    build:
+      context: .
+      # uncomment for 'prod' like env locally
+      # NODE_ENV: production
+    container_name: outpost-api-service
+    # use if you just want to keep the container running
+    # entrypoint: ["tail"]
+    # command: ["-f", "/dev/null"]
+    environment:
+      DB_URI: mongodb://${MONGO_INITDB_USERNAME:-outpost}:${MONGO_INITDB_PASSWORD:-password}@mongo/${MONGO_INITDB_DATABASE:-outpost_api_development}
+    platform: linux/amd64
     volumes:
-      - outpost-api-mongo-volume:/data/db
+      - ./:/app:cached
+      - /app/node_modules
+    ports:
+      - 3001:3000
     networks:
       - internal_network
       - external_network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3001/health"]
+      interval: 1m30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    depends_on:
+      - mongo
+
+  # Databases
+
+  mongo:
+    extends:
+      file: ./.docker/services/mongo/mongo.yml
+      service: mongo
+    networks:
+      - external_network
+      - internal_network
 
 volumes:
-  outpost-api-mongo-volume:
+  mongo-volume:
 
 networks:
   external_network:

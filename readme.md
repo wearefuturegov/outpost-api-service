@@ -1,6 +1,6 @@
 <p align="center">
     <a href="https://outpost-platform.wearefuturegov.com/">
-        <img src="logo-icon-outpost-api-main.png?raw=true" width="350px" />               
+        <img src="docs/logo-icon-outpost-api-main.png?raw=true" width="350px" />               
     </a>
 </p>
   
@@ -11,7 +11,7 @@
 ---
 
 <p align="center">
-   <img src="screenshot-outpost-api-output.png?raw=true" width="750px" />     
+   <img src="docs/screenshot-outpost-api-output.png?raw=true" width="750px" />     
 </p>
 
 <p align="center">
@@ -36,9 +36,9 @@ To run it on your machine you need Node.js, npm, nvm (https://github.com/nvm-sh/
 
 It expects a few environment variables.
 
-`DATABASE_URL`
+`DB_URI`
 
-- MongoDB connection URI nb if you're running in a docker container and want to connect to your local db use `host.docker.internal` instead of `localhost`
+- MongoDB connection URI
 
 `GOOGLE_API_KEY`
 
@@ -53,101 +53,123 @@ Other environmental variables:
 
 ---
 
-## 💻 Getting started
-
-### Using docker
+## 💻 Running it locally
 
 ```sh
+# get the code
 git clone git@github.com:wearefuturegov/outpost-api-service.git && cd outpost-api-service
 
-# build the image - if using for the first time
-docker build --tag outpost-api-service:development --target development .
-
-# run the image in local environment
-docker run -p 3001:3001 --name outpost-api-service -v $(pwd):/app:cached -i -d outpost-api-service:development
-
-# setup indices
-docker exec -it outpost-api-service npm run prepare-indices
-
-# access the site
-open http://localhost:3001/api/v1/services
-
-# open shell in container
-docker exec -it outpost-api-service /bin/ash;
-
-# run tests
-docker exec -it outpost-api-service npm run test
-
-# stop the container
-docker stop outpost-api-service
-
-# start again
-docker start outpost-api-service
-```
-
-### Using docker-compose
-
-```sh
-git clone git@github.com:wearefuturegov/outpost-api-service.git && cd outpost-api-service
-
-# build the image
-docker compose -f docker-compose.development.yml build
-
-# run the container
-docker compose -f docker-compose.development.yml up -d
-
-# setup indices
-docker compose -f docker-compose.development.yml exec outpost-api-dev npm run prepare-indices;
-
-# open shell in container
-docker compose -f docker-compose.development.yml exec outpost-api-dev /bin/ash;
-
-# run tests
-docker compose -f docker-compose.development.yml exec outpost-api-dev npm run test
-
-# stop the container
-docker compose -f docker-compose.development.yml stop
-
-```
-
-### On your machine
-
-To run it on your machine you need Node.js, npm, nvm (https://github.com/nvm-sh/nvm) and a working MongoDB database [with the right indices](#indices) available on `localhost:27017`.
-
-```
-# use the right node version
+# make sure your using the correct node version
 nvm use
 
-# install npm packages
-npm i
+# setup env and database variables
+# see setting up database below
+cp sample.env .env
 
-# if this is your first time installing it prepare the database
-npm run prepare-indices
+# Setup your database locally (see below) or start up a database using docker
+# NB this runs mongo on a non-standard port `27018` in case you have mongo already running, you can change it to `27017` if you would like to
+# connect with compass or mongosh with: mongodb://outpost:password@localhost:27018
+docker compose up -d mongo
 
-# start the local development server
+# once its setup you can just use this to restart it
+docker start outpost-api-db
+
+# install dependencies
+npm install
+
+# run development mode
 npm run dev
 
-# outpost api is running on http://localhost:3001
+
+# add some dummy data (if required)
+npm run dummy-data
+
+# stop your database
+docker compose stop
+
+# delete your database image
+docker compose down
+
 ```
 
-## Deploying it
+### Setting up database locally
+
+```sh
+# create the database on your localhost and run
+mongosh .docker/services/mongo/setup-mongodb.js
+
+# you can also run the following to use add the indices on to an existing database
+npm run prepare-indices
+```
+
+or you can use the following commands to create your indices
+
+# 🧬 Configuration
+
+## Environmental Variables
+
+You can provide config with a `.env` file. Run `cp sample.env .env` to create a fresh one.
+
+The following environmental variables are required.
+
+| Variable         | Description        | Example                                                              | Required? |
+| ---------------- | ------------------ | -------------------------------------------------------------------- | --------- |
+| `DB_URI`         | Mongo database url | `mongodb://outpost:password@localhost:27018/outpost_api_development` | Yes       |
+| `GOOGLE_API_KEY` | Google API Key     | `1234`                                                               | Yes       |
+
+# ✨ Features
+
+## Geocoding
+
+It is recommended to have an API for each environment, `outpost_api_service_geocode_dev`, `outpost_api_service_geocode_staging` and `outpost_api_service_geocode_prod`.
+
+You will need to enable the `Geocode API`, no restrictions are needed.
+
+## 🌎 Running it on the web
+
+### Deploying using heroku (recommended)
 
 [![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy)
 
 It's suitable for 12-factor hosting like Heroku. It has a [Procfile](https://devcenter.heroku.com/articles/procfile) that will make sure the proper MongoDB indices are set up.
 
-```
-npm start
-```
+### Deploying using docker
 
-You can also deploy via docker
+We also provide a Docker image if you would like to host the application in a container
+
+We provide scripts to initialise the database once its been created.
 
 ```sh
-# build the image
-docker compose build
+docker run -it --rm \
+--env-file .env \
+-e DB_URI=mongodb://outpost:password@host.docker.internal:27018/outpost_api_development \
+outpost-api-service:production prepare-collection
 
-# run the container
-docker compose up -d
+docker run -it --rm \
+--env-file .env \
+-e DB_URI=mongodb://outpost:password@host.docker.internal:27018/outpost_api_development \
+outpost-api-service:production prepare-indices
+
+docker run -it --rm \
+--env-file .env \
+-e DB_URI=mongodb://outpost:password@host.docker.internal:27018/outpost_api_development \
+outpost-api-service:production dummy-data
+```
+
+```sh
+docker build --pull --rm --no-cache --progress plain -f Dockerfile.production -t outpost-api-service:production .
+
+docker run \
+-e FORCE_SSL=false \
+-e DB_URI=mongodb://outpost:password@host.docker.internal:27018/outpost_api_development \
+--env-file .env \
+-p 3002:3000 \
+--name outpost-api-production \
+-d outpost-api-service:production
+
+docker stop outpost-api-production && docker rm outpost-api-production
+
+docker image rm outpost-api-service:production
 ```
 
 ## Indices
@@ -160,3 +182,12 @@ db.indexed_services.createIndex({ "locations.coordinates": "2dsphere" })
 ```
 
 You can create these two, plus an index of taxonomy slugs, automatically with the `npm run prepare-indices` command.
+
+# 🧪 Tests
+
+```sh
+npm run test
+
+# or
+docker compose exec app npm run test
+```

@@ -1,9 +1,12 @@
-ARG NODE_ENV=development
+ARG NODE_ENV=production
+ARG FORCE_SSL=true
 
 # ----------------------------------------------------------------
 FROM node:iron-alpine as build_frontend
 ARG NODE_ENV
+ARG FORCE_SSL
 ENV NODE_ENV $NODE_ENV
+RUN adduser -D outpost-user
 
 COPY ./package.json ./tmp/package.json
 COPY ./package-lock.json ./tmp/package-lock.json
@@ -11,22 +14,23 @@ COPY ./package-lock.json ./tmp/package-lock.json
 WORKDIR /tmp
 
 RUN if [ "${NODE_ENV}" = "development" ] || [ -z "${NODE_ENV}" ]; then \
-  npm install; fi
+    npm install; fi
 RUN if [ "${NODE_ENV}" = "production" ]; then \
-  npm ci && npm cache clean --force; fi
+    npm ci --omit=dev && npm cache clean --force; fi
 
 WORKDIR /app
 
 # ----------------------------------------------------------------
 FROM build_frontend
 ARG NODE_ENV
+ARG FORCE_SSL
 ENV NODE_ENV $NODE_ENV
+ENV FORCE_SSL $FORCE_SSL
 
-COPY --from=build_frontend /tmp/package.json ./package.json
-COPY --from=build_frontend /tmp/package-lock.json ./package-lock.json
-COPY --from=build_frontend /tmp/node_modules ./node_modules
+COPY --from=build_frontend --chown=outpost-user:outpost-user /tmp/node_modules /app/node_modules
+COPY . /app
 
-
+USER outpost-user
 EXPOSE 3000
 ENTRYPOINT ["npm", "run"]
-CMD ["dev"]
+CMD ["start"]
