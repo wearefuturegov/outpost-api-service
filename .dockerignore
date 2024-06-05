@@ -1,0 +1,34 @@
+# git
+.git
+.gitattributes
+.gitignore
+.github
+
+# env
+.env
+.env.*
+
+# node
+node_modules
+
+# misc
+.DS_Store
+*.swp
+*~
+
+# logs
+log/*
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.yarn-integrity
+
+# Added in case image is built locally without fresh checkout
+.idea
+.vscode
+.ruby-lsp
+coverage
+
+# heroku
+Procfile

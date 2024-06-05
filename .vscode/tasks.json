@@ -1,0 +1,61 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Build",
+      "type": "shell",
+      "command": "cd ${workspaceRoot} && make build",
+      "presentation": {
+        "reveal": "always",
+        "panel": "new"
+      },
+      "options": {
+        "statusbar": {
+          "label": "Build environment"
+        }
+      }
+    },
+    {
+      "label": "Start environment",
+      "type": "shell",
+      "command": "cd ${workspaceRoot} && make start",
+      "presentation": {
+        "reveal": "always",
+        "panel": "new"
+      },
+      "options": {
+        "statusbar": {
+          "label": "Start environment"
+        }
+      }
+    },
+    {
+      "label": "Open shell",
+      "type": "shell",
+      "command": "cd ${workspaceRoot} && make shell",
+      "presentation": {
+        "reveal": "always",
+        "panel": "new"
+      },
+      "options": {
+        "statusbar": {
+          "label": "Open shell"
+        }
+      }
+    },
+    {
+      "label": "Stop environment",
+      "type": "shell",
+      "command": "cd ${workspaceRoot} && make stop",
+      "presentation": {
+        "reveal": "always",
+        "panel": "new"
+      },
+      "options": {
+        "statusbar": {
+          "label": "Stop environment"
+        }
+      }
+    }
+  ]
+}
