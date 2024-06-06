@@ -74,7 +74,7 @@ module.exports = {
   show: async (req, res, next) => {
     try {
       logger.info(req.params)
-      const query = getService.buildQuery(req.params)
+      const query = await getService.buildQuery(req.params)
       const result = await getService.executeQuery(query)
       // let result = await db()
       //   .collection("indexed_services")
