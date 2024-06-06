@@ -1,6 +1,7 @@
 const filters = require("../../../../lib/filters")
 const { projection } = require("../../../../lib")
 const { db } = require("../../../../db")
+const logger = require("../../../../../utils/logger")
 
 module.exports = {
   /**
@@ -24,6 +25,10 @@ module.exports = {
    * @returns
    */
   async executeQuery(query) {
+    logger.debug("query")
+    logger.debug(query)
+    logger.debug(JSON.stringify(query))
+
     let result = await db()
       .collection("indexed_services")
       .findOne(query, projection)
