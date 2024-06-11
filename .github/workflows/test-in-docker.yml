@@ -39,6 +39,9 @@ jobs:
           file: Dockerfile.production
           push: false
           load: true
+          build-args: |
+            NODE_ENV=development
+            FORCE_SSL=false
 
       - name: Run command inside Docker container
         run: |
