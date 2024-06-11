@@ -14,17 +14,17 @@ services:
     # command: ["-f", "/dev/null"]
     environment:
       DB_URI: mongodb://${MONGO_INITDB_USERNAME:-outpost}:${MONGO_INITDB_PASSWORD:-password}@mongo/${MONGO_INITDB_DATABASE:-outpost_api_development}
-    platform: linux/amd64
+    platform: linux/arm64
     volumes:
       - ./:/app:cached
       - /app/node_modules
     ports:
-      - 3001:3000
+      - "${HOST_PORT:-3000}:3000"
     networks:
       - internal_network
       - external_network
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3001/health"]
+      test: ["CMD-SHELL", "curl -f http://localhost:3000/health"]
       interval: 1m30s
       timeout: 10s
       retries: 3
