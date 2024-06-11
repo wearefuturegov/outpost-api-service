@@ -8,6 +8,9 @@ ARG FORCE_SSL
 ENV NODE_ENV $NODE_ENV
 RUN adduser -D outpost-user
 
+RUN apk update
+RUN apk add curl
+
 COPY ./package.json ./tmp/package.json
 COPY ./package-lock.json ./tmp/package-lock.json
 
