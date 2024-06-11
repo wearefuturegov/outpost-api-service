@@ -1,0 +1,75 @@
+# This action tests to make sure that the docker image can be built successfully on the specified platforms
+
+name: Run tests in docker container
+
+on: push
+
+jobs:
+  test-in-docker:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: "Checkout GitHub Action"
+        uses: actions/checkout@main
+
+      - name: "Create custom network"
+        run: docker network create outpost-api-test-network
+
+      - name: "Setup mongo"
+        run: |
+          docker run --rm -d -p 27017:27017 \
+          --name mongo \
+          -e MONGO_INITDB_ROOT_USERNAME=admin \
+          -e MONGO_INITDB_ROOT_PASSWORD=password \
+          -e MONGO_INITDB_USERNAME=outpost \
+          -e MONGO_INITDB_PASSWORD=password \
+          -e MONGO_INITDB_DATABASE=outpost_api_development \
+          -v $PWD/.docker/services/mongo/setup-mongodb.js:/docker-entrypoint-initdb.d/mongo-init.js:ro \
+          --network=outpost-api-test-network \
+          mongo:latest
+
+      - name: Set Docker Image Tag
+        id: vars
+        run: |
+          BRANCH_NAME=${GITHUB_HEAD_REF#refs/heads/}
+          if [[ "$BRANCH_NAME" == "develop" ]]; then
+            echo "tag=development" >> $GITHUB_ENV
+          elif [[ "$BRANCH_NAME" == "staging" ]]; then
+            echo "tag=staging" >> $GITHUB_ENV
+          elif [[ "$BRANCH_NAME" == "production" ]]; then
+            echo "tag=latest" >> $GITHUB_ENV
+          else
+            echo "tag=default" >> $GITHUB_ENV
+          fi
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          tags: outpost-api-service:${{ env.tag }}
+          file: Dockerfile.production
+          push: false
+          load: true
+          build-args: |
+            NODE_ENV=development
+            FORCE_SSL=false
+
+      - name: Run the image
+        env:
+          DB_URI: mongodb://outpost:password@mongo:27017/outpost_api_development
+        run: |
+          docker run --rm -d \
+          -e DEBUG_LEVEL=debug \
+          -e DB_URI=$DB_URI \
+          --name temp_container \
+          --network=outpost-api-test-network \
+          outpost-api-service:${{ env.tag }}
+          docker exec temp_container npm run dummy-data
+          docker exec temp_container npm run test
+          docker stop temp_container

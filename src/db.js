@@ -10,6 +10,11 @@ let db
 
 module.exports = {
   connect: async cb => {
+    if (!uri) {
+      logger.error(`DB_URI not set`)
+      return false
+    }
+
     MongoClient.connect(uri)
       .then(async client => {
         // const ping = await client.db().command({ ping: 1 })
