@@ -19,8 +19,8 @@ jobs:
           MONGO_INITDB_DATABASE: outpost_api_development
         ports:
           - 27017:27017
-    volumes:
-      - ./.docker/services/mongo/setup-mongodb.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
+        volumes:
+          - ./.docker/services/mongo/setup-mongodb.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
 
     steps:
       - name: "Checkout GitHub Action"
