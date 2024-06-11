@@ -8,23 +8,25 @@ jobs:
   test-in-docker:
     runs-on: ubuntu-latest
 
-    services:
-      mongo:
-        image: mongo:latest
-        env:
-          MONGO_INITDB_ROOT_USERNAME: admin
-          MONGO_INITDB_ROOT_PASSWORD: password
-          MONGO_INITDB_USERNAME: outpost
-          MONGO_INITDB_PASSWORD: password
-          MONGO_INITDB_DATABASE: outpost_api_development
-        ports:
-          - 27017:27017
-        volumes:
-          - ./.docker/services/mongo/setup-mongodb.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
-
     steps:
       - name: "Checkout GitHub Action"
         uses: actions/checkout@main
+
+      - name: "Create custom network"
+        run: docker network create outpost-api-test-network
+
+      - name: "Setup mongo"
+        run: |
+          docker run --rm -d -p 27017:27017 \
+          --name mongo \
+          -e MONGO_INITDB_ROOT_USERNAME=admin \
+          -e MONGO_INITDB_ROOT_PASSWORD=password \
+          -e MONGO_INITDB_USERNAME=outpost \
+          -e MONGO_INITDB_PASSWORD=password \
+          -e MONGO_INITDB_DATABASE=outpost_api_development \
+          -v $PWD/.docker/services/mongo/setup-mongodb.js:/docker-entrypoint-initdb.d/mongo-init.js:ro \
+          --network=outpost-api-test-network \
+          mongo:latest
 
       - name: Set Docker Image Tag
         id: vars
@@ -60,9 +62,14 @@ jobs:
 
       - name: Run the image
         env:
-          DB_URI: mongodb://root:password@localhost:27017/outpost_development?authSource=admin
+          DB_URI: mongodb://root:password@mongo:27017/outpost_development?authSource=admin
         run: |
-          docker run --rm -d -e DEBUG_LEVEL=debug -e DB_URI=${ DB_URI } --name temp_container outpost-api-service:${{ env.tag }}
+          docker run --rm -d \
+          -e DEBUG_LEVEL=debug \
+          -e DB_URI=${ DB_URI } \
+          --name temp_container \
+          --network=outpost-api-test-network \
+          outpost-api-service:${{ env.tag }}
           docker exec temp_container npm run dummy-data
           docker exec temp_container npm run test
           docker stop temp_container
