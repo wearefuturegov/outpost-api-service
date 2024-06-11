@@ -34,62 +34,37 @@ To run it on your machine you need Node.js, npm, nvm (https://github.com/nvm-sh/
 
 ## 🧬 Configure Outpost API
 
-It expects a few environment variables.
-
-`DB_URI`
-
-- MongoDB connection URI
-
-`GOOGLE_API_KEY`
-
-- Used for geocoding `location=` parameters.
-- **Needs the geocoding API enabled.**
-
-Other environmental variables:
-
-`COMPOSE_PROJECT_NAME`
-
-- This is used to name the docker images and containers
-
----
+See [environmental variables](#environmental-variables) below.
 
 ## 💻 Running it locally
+
+It is recommended to use docker but you can choose to run the project locally as well.
 
 ```sh
 # get the code
 git clone git@github.com:wearefuturegov/outpost-api-service.git && cd outpost-api-service
 
-# make sure your using the correct node version
-nvm use
-
 # setup env and database variables
-# see setting up database below
 cp sample.env .env
 
-# Setup your database locally (see below) or start up a database using docker
+# setup
+docker compose up -d
+
+# if you need dummy data
+docker compose exec app npm run dummy-data
+
+# access the api
+open http://localhost:3001/api/v1/services
+
+# access the mongodb
 # NB this runs mongo on a non-standard port `27018` in case you have mongo already running, you can change it to `27017` if you would like to
-# connect with compass or mongosh with: mongodb://outpost:password@localhost:27018
-docker compose up -d mongo
+mongo "mongodb://outpost:password@localhost:27018/outpost_api_development"
 
-# once its setup you can just use this to restart it
-docker start outpost-api-db
-
-# install dependencies
-npm install
-
-# run development mode
-npm run dev
-
-
-# add some dummy data (if required)
-npm run dummy-data
-
-# stop your database
+# stop the application at any time by running
 docker compose stop
 
-# delete your database image
+# remove the running containers by running
 docker compose down
-
 ```
 
 ### Setting up database locally
@@ -102,8 +77,6 @@ mongosh .docker/services/mongo/setup-mongodb.js
 npm run prepare-indices
 ```
 
-or you can use the following commands to create your indices
-
 # 🧬 Configuration
 
 ## Environmental Variables
@@ -112,10 +85,13 @@ You can provide config with a `.env` file. Run `cp sample.env .env` to create a 
 
 The following environmental variables are required.
 
-| Variable         | Description        | Example                                                              | Required? |
-| ---------------- | ------------------ | -------------------------------------------------------------------- | --------- |
-| `DB_URI`         | Mongo database url | `mongodb://outpost:password@localhost:27018/outpost_api_development` | Yes       |
-| `GOOGLE_API_KEY` | Google API Key     | `1234`                                                               | Yes       |
+| Variable         | Description                                                               | Example                                                              | Required? |
+| ---------------- | ------------------------------------------------------------------------- | -------------------------------------------------------------------- | --------- |
+| `DB_URI`         | Mongo database url                                                        | `mongodb://outpost:password@localhost:27018/outpost_api_development` | Yes       |
+| `GOOGLE_API_KEY` | Google API Key                                                            | `1234`                                                               | Yes       |
+| `DEBUG_LEVEL`    | Debug logging level options are: error, warn, info, http, debug           | `debug`                                                              | No        |
+| `FORCE_SSL`      | Force SSL defaults to false unless this is set to true                    | true                                                                 | No        |
+| `HOST_PORT`      | If running in docker set this to change the exposed port, default is 3000 | 3001                                                                 | No        |
 
 # ✨ Features
 
@@ -132,6 +108,8 @@ You will need to enable the `Geocode API`, no restrictions are needed.
 [![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy)
 
 It's suitable for 12-factor hosting like Heroku. It has a [Procfile](https://devcenter.heroku.com/articles/procfile) that will make sure the proper MongoDB indices are set up.
+
+Ensure you set `FORCE_SSL` to true.
 
 ### Deploying using docker
 

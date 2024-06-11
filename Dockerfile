@@ -5,6 +5,9 @@ FROM node:iron-alpine as build_frontend
 ARG NODE_ENV
 ENV NODE_ENV $NODE_ENV
 
+RUN apk update
+RUN apk add curl
+
 COPY ./package.json ./tmp/package.json
 COPY ./package-lock.json ./tmp/package-lock.json
 

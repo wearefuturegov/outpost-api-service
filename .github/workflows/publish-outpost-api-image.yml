@@ -1,14 +1,17 @@
 # This action pre-builds the dev-base image and pushes it to the GitHub Container Registry (GHCR)
 
-name: Deploy outpost api image to github container registry
+name: Publish outpost-api-service to github container registry
 
 on:
   push:
     branches: [develop, staging, production]
 
 jobs:
-  push-outpost-api-image:
+  publish-outpost-api-image:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        platforms: ["linux/amd64", "linux/arm64", "linux/arm64/v8"]
     steps:
       - name: "Checkout GitHub Action"
         uses: actions/checkout@main
@@ -25,18 +28,26 @@ jobs:
         run: |
           BRANCH_NAME=${GITHUB_REF#refs/heads/}
           if [[ "$BRANCH_NAME" == "develop" ]]; then
-            echo "::set-output name=tag::development"
+            echo "tag=development" >> $GITHUB_ENV
           elif [[ "$BRANCH_NAME" == "staging" ]]; then
-            echo "::set-output name=tag::staging"
+            echo "tag=staging" >> $GITHUB_ENV
           elif [[ "$BRANCH_NAME" == "production" ]]; then
-            echo "::set-output name=tag::latest"
+            echo "tag=latest" >> $GITHUB_ENV
+          else
+            echo "tag=default" >> $GITHUB_ENV
           fi
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
 
       - name: Build and push outpost api docker image
         uses: docker/build-push-action@v5
         with:
           context: .
-          tags: ghcr.io/wearefuturegov/outpost-api-service:${{ steps.vars.outputs.tag }}
+          tags: ghcr.io/wearefuturegov/outpost-api-service:${{ env.tag }}
           file: Dockerfile.production
           platforms: ${{ matrix.platforms }}
           push: true

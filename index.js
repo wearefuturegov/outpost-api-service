@@ -11,6 +11,7 @@ const v1 = require("./src/controllers/v1")
 const router = express.Router()
 const server = express()
 const port = process.env.PORT || 3000
+const host_port = process.env.HOST_PORT || process.env.PORT || 3000
 const environment = process.env.NODE_ENV || "production"
 const isDevelopment = environment === "development"
 
@@ -21,7 +22,7 @@ connect(() =>
   logger.info(
     `📡 Database connection established http${
       !isDevelopment ? "s" : ""
-    }://localhost:${port}/api/v1/services`
+    }://localhost:${host_port}/api/v1/services`
   )
 )
 
@@ -92,6 +93,6 @@ server.use((err, req, res, next) => {
  * Start the server
  */
 server.listen(port, () => {
-  logger.info(`Server is running on port ${port}`)
+  logger.info(`Server is running on port ${host_port}`)
   logger.info(`Logging level is set to ${logger.level}`)
 })
