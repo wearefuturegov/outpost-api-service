@@ -1,13 +1,13 @@
 # This action pre-builds the dev-base image and pushes it to the GitHub Container Registry (GHCR)
 
-name: Deploy outpost api image to github container registry
+name: Publish outpost-api-service to github container registry
 
 on:
   push:
     branches: [develop, staging, production]
 
 jobs:
-  push-outpost-api-image:
+  publish-outpost-api-image:
     runs-on: ubuntu-latest
     strategy:
       matrix:

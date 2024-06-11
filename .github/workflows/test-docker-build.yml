@@ -1,11 +1,11 @@
 # This action tests to make sure that the docker image can be built successfully on the specified platforms
 
-name: Docker Build Test
+name: Test outpost-api-image docker build
 
 on: push
 
 jobs:
-  build-test:
+  test-docker-build:
     runs-on: ubuntu-latest
     strategy:
       matrix:

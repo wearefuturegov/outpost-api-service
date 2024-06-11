@@ -1,11 +1,11 @@
 # This action tests to make sure that the docker image can be built successfully on the specified platforms
 
-name: Docker Run Tests
+name: Run tests in docker container
 
 on: push
 
 jobs:
-  docker-run-tests:
+  test-in-docker:
     runs-on: ubuntu-latest
     steps:
       - name: "Checkout GitHub Action"
