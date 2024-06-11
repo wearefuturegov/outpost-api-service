@@ -45,8 +45,6 @@ jobs:
 
       - name: Run the image
         run: |
-          docker run --rm -e DEBUG_LEVEL=debug --name temp_container outpost-api-service:${{ env.tag }}
-
-      - name: Run the tests
-        run: |
+          docker run --rm -d -e DEBUG_LEVEL=debug --name temp_container outpost-api-service:${{ env.tag }}
           docker exec temp_container npm run test
+          docker stop temp_container
