@@ -66,7 +66,7 @@ jobs:
         run: |
           docker run --rm -d \
           -e DEBUG_LEVEL=debug \
-          -e DB_URI=${ DB_URI } \
+          -e DB_URI=$DB_URI \
           --name temp_container \
           --network=outpost-api-test-network \
           outpost-api-service:${{ env.tag }}
