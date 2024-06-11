@@ -21,6 +21,7 @@ RUN if [ "${NODE_ENV}" = "development" ] || [ -z "${NODE_ENV}" ]; then \
 RUN if [ "${NODE_ENV}" = "production" ]; then \
     npm ci --omit=dev && npm cache clean --force; fi
 
+USER outpost-user
 WORKDIR /app
 
 # ----------------------------------------------------------------
