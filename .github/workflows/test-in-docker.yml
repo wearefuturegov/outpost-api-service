@@ -10,7 +10,7 @@ jobs:
 
     services:
       mongo:
-        image: mongo:6
+        image: mongo:latest
         env:
           MONGO_INITDB_ROOT_USERNAME: admin
           MONGO_INITDB_ROOT_PASSWORD: password
@@ -20,7 +20,7 @@ jobs:
         ports:
           - 27017:27017
         volumes:
-          - ./.docker/services/mongo/setup-mongodb.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
+          - .docker/services/mongo/setup-mongodb.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
 
     steps:
       - name: "Checkout GitHub Action"
