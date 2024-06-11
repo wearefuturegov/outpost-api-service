@@ -7,6 +7,21 @@ on: push
 jobs:
   test-in-docker:
     runs-on: ubuntu-latest
+
+    services:
+      mongo:
+        image: mongo:6
+        env:
+          MONGO_INITDB_ROOT_USERNAME: admin
+          MONGO_INITDB_ROOT_PASSWORD: password
+          MONGO_INITDB_USERNAME: outpost
+          MONGO_INITDB_PASSWORD: password
+          MONGO_INITDB_DATABASE: outpost_api_development
+        ports:
+          - 27017:27017
+    volumes:
+      - ./.docker/services/mongo/setup-mongodb.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
+
     steps:
       - name: "Checkout GitHub Action"
         uses: actions/checkout@main
@@ -44,7 +59,10 @@ jobs:
             FORCE_SSL=false
 
       - name: Run the image
+        env:
+          DB_URI: mongodb://root:password@localhost:27017/outpost_development?authSource=admin
         run: |
-          docker run --rm -d -e DEBUG_LEVEL=debug --name temp_container outpost-api-service:${{ env.tag }}
+          docker run --rm -d -e DEBUG_LEVEL=debug -e DB_URI=${ DB_URI } --name temp_container outpost-api-service:${{ env.tag }}
+          docker exec temp_container npm run dummy-data
           docker exec temp_container npm run test
           docker stop temp_container
