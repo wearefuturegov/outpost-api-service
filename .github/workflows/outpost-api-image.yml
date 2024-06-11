@@ -28,18 +28,20 @@ jobs:
         run: |
           BRANCH_NAME=${GITHUB_REF#refs/heads/}
           if [[ "$BRANCH_NAME" == "develop" ]]; then
-            echo "::set-output name=tag::development"
+            echo "tag=development" >> $GITHUB_ENV
           elif [[ "$BRANCH_NAME" == "staging" ]]; then
-            echo "::set-output name=tag::staging"
+            echo "tag=staging" >> $GITHUB_ENV
           elif [[ "$BRANCH_NAME" == "production" ]]; then
-            echo "::set-output name=tag::latest"
+            echo "tag=latest" >> $GITHUB_ENV
+          else
+            echo "tag=default" >> $GITHUB_ENV
           fi
 
       - name: Build and push outpost api docker image
         uses: docker/build-push-action@v5
         with:
           context: .
-          tags: ghcr.io/wearefuturegov/outpost-api-service:${{ steps.vars.outputs.tag }}
+          tags: ghcr.io/wearefuturegov/outpost-api-service:${{ env.tag }}
           file: Dockerfile.production
           platforms: ${{ matrix.platforms }}
           push: true
