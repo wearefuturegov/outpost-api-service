@@ -1,0 +1,41 @@
+# if you want to use the Outpost API in dev mode with outpost in dev mode, you can use this file to start the service.
+# Run outpost as normal and then use this docker compose file to tag along
+# docker compose -f docker-compose.with-outpost.yml up -d
+
+version: "3.7"
+services:
+  # Outpost api
+
+  app:
+    image: "outpost_api:development"
+    build:
+      context: .
+      # uncomment for 'prod' like env locally
+      # NODE_ENV: production
+    container_name: outpost-api-service
+    # use if you just want to keep the container running
+    # entrypoint: ["tail"]
+    # command: ["-f", "/dev/null"]
+    environment:
+      DB_URI: mongodb://${MONGO_INITDB_USERNAME:-outpost}:${MONGO_INITDB_PASSWORD:-password}@host.docker.internal:27018/${MONGO_INITDB_DATABASE:-outpost_api_development}
+    platform: linux/arm64
+    volumes:
+      - ./:/app:cached
+      - /app/node_modules
+    ports:
+      - 3002:3000
+    networks:
+      - outpost_internal_network
+      - outpost_external_network
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:3000/health"]
+      interval: 1m30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+networks:
+  outpost_internal_network:
+    external: true
+  outpost_external_network:
+    external: true
