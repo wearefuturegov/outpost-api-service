@@ -156,7 +156,7 @@ It needs the right indices on the MongoDB collection to enable full-text and geo
 
 ```
 db.indexed_services.createIndex({ name: "text", description: "text" })
-db.indexed_services.createIndex({ "locations.coordinates": "2dsphere" })
+db.indexed_services.createIndex({ "service_at_locations.location.geometry": "2dsphere" })
 ```
 
 You can create these two, plus an index of taxonomy slugs, automatically with the `npm run prepare-indices` command.
