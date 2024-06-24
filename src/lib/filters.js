@@ -4,7 +4,8 @@ module.exports = {
   locationGeometry: (lat, lng) => {
     let query = {}
     if (lat && lng) {
-      query["locations.geometry"] = {
+      query["service_at_locations.location.geometry"] = {
+        // use this option to search within a defined area
         // remember if you take out nearsphere to update the executeQuery function!
         // this lets us get accurate result counts
         // $geoWithin: {
@@ -14,11 +15,14 @@ module.exports = {
         //   ],
         // },
         // but this is how its always been done so we will keep this for now
+        // added maxDistance to limit the search to 15 miles for efficiency
+        // nb if you add in $maxDistance you will need to update the createCountQuery function workaround
         $nearSphere: {
           $geometry: {
             type: "Point",
             coordinates: [parseFloat(lng), parseFloat(lat)],
           },
+          // $maxDistance: 10 * 1609.34, // miles x 1609.34 = Distance in meters
         },
       }
     }
@@ -202,7 +206,9 @@ module.exports = {
   filterAccessibilities: accessibilities => {
     if (accessibilities?.length > 0) {
       return {
-        "locations.accessibilities.slug": { $in: accessibilities },
+        "service_at_locations.location.accessibilities.slug": {
+          $in: accessibilities,
+        },
       }
     }
     return {}

@@ -156,11 +156,11 @@ module.exports = {
   createCountQuery: query => {
     // "budget deep clone" we spread $and so can modify it for countQuery only
     const countQuery = { ...query, $and: [...query.$and] }
-    if ("locations.geometry" in countQuery) {
-      delete countQuery["locations.geometry"]
+    if ("service_at_locations.location.geometry" in countQuery) {
+      delete countQuery["service_at_locations.location.geometry"]
 
       countQuery["$and"].push({
-        "locations.geometry": {
+        "service_at_locations.location.geometry": {
           $exists: true,
           $ne: null,
         },

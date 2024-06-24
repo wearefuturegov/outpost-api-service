@@ -9,7 +9,7 @@ describe("locationGeometry", () => {
     const lat = "40.7128"
     const lng = "-74.0060"
     const expectedQuery = {
-      "locations.geometry": {
+      "service_at_locations.location.geometry": {
         $nearSphere: {
           $geometry: {
             type: "Point",
@@ -203,7 +203,9 @@ describe("filterAccessibilities", () => {
       "wheelchair-accessible-entrance",
     ]
     const expectedQuery = {
-      "locations.accessibilities.slug": { $in: accessibilities },
+      "service_at_locations.location.accessibilities.slug": {
+        $in: accessibilities,
+      },
     }
     expect(filters.filterAccessibilities(accessibilities)).toEqual(
       expectedQuery
