@@ -17,7 +17,7 @@ connect(async db => {
       }
     )
     await db.collection("indexed_services").createIndex({
-      "locations.geometry": "2dsphere",
+      "service_at_locations.location.geometry": "2dsphere",
     })
     await db.collection("indexed_services").createIndex({
       "taxonomies.slug": 1,
