@@ -61,5 +61,5 @@ jobs:
           file: Dockerfile.production
           platforms: ${{ matrix.platforms }}
           push: true
-          outputs: type=image,name=target,annotation-index.org.opencontainers.image.description=Outpost API Service image
+          outputs: type=image,name=target,annotation-index.org.opencontainers.image.description=Outpost API Service image,oci-mediatypes=false
           labels: org.opencontainers.image.source=https://github.com/wearefuturegov/outpost-api-service
