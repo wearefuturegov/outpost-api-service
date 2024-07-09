@@ -6,8 +6,8 @@ on:
   push:
     branches: [develop, staging, production, feature/arch]
 
-# env:
-# BUILDX_NO_DEFAULT_ATTESTATIONS: 1
+env:
+  BUILDX_NO_DEFAULT_ATTESTATIONS: 1
 
 jobs:
   publish-outpost-api-image:
