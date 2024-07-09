@@ -14,8 +14,8 @@ module.exports = {
     const page = parseInt(queryParams.page) || 1
     const keywords = queryParams.keywords
     const location = queryParams.location
-    let lat = parseFloat(queryParams.lat) || undefined
-    let lng = parseFloat(queryParams.lng) || undefined
+    let lat = queryParams?.lat ? parseFloat(queryParams.lat) : undefined
+    let lng = queryParams?.lng ? parseFloat(queryParams.lng) : undefined
     let directories = queryParams?.directories
       ? [].concat(queryParams.directories)
       : []
@@ -55,11 +55,10 @@ module.exports = {
     if (location && !(lat && lng)) {
       try {
         const { results } = await geocode(queryParams.location)
-        logger.debug(results)
         if (results[0]) {
           interpreted_location = results[0].formatted_address
-          lng = parseInt(results[0].geometry.location.lng)
-          lat = parseInt(results[0].geometry.location.lat)
+          lng = parseFloat(results[0].geometry.location.lng)
+          lat = parseFloat(results[0].geometry.location.lat)
         }
       } catch (error) {
         logger.warn(error)
@@ -94,21 +93,8 @@ module.exports = {
     let query = {}
     query.$and = []
 
-    const locationInQuery =
-      parameters.location !== undefined ||
-      parameters.lat !== undefined ||
-      parameters.lng !== undefined
-    const filterKeywords = await filters.filterKeywords(
-      parameters.keywords,
-      locationInQuery
-    )
+    const filterKeywords = await filters.filterKeywords(parameters.keywords)
     query = { ...filterKeywords, ...query }
-
-    const locationGeometry = filters.locationGeometry(
-      parameters.lat,
-      parameters.lng
-    )
-    query = { ...locationGeometry, ...query }
 
     // add filtering for ages
     const ages = filters.filterAges(parameters.minAge, parameters.maxAge)
@@ -124,6 +110,11 @@ module.exports = {
 
     // add filtering
     query.$and.push(
+      filters.filterLocation(
+        parameters.lat,
+        parameters.lng,
+        query?.$text ?? false
+      ),
       filters.filterDirectories(parameters.directories),
       filters.filterTaxonomies(parameters.taxonomies),
       filters.filterNeeds(parameters.needs),
@@ -139,37 +130,6 @@ module.exports = {
   },
 
   /**
-   * this is done because of the $nearSphere method in locationGeometry.
-   * This is because The $nearSphere operator cannot be used with the
-   * countDocuments() method in MongoDB because countDocuments()
-   * uses an aggregation pipeline under the hood, and $nearSphere is not
-   * allowed in an aggregation pipeline.
-   * so as a workaround if we're using nearsphere we update the count
-   * query to prevent errors
-   * the result of nearsphere will include all services with a location
-   * so this query is a good substitute to get the totalElements value
-   * @TODO test this doesn't affect query object
-   * http://localhost:3001/api/v1/services?lat=51.2107714&lng=0.31105&per_page=10&suitabilities=physical-disabilities
-   * @param {*} query
-   * @returns
-   */
-  createCountQuery: query => {
-    // "budget deep clone" we spread $and so can modify it for countQuery only
-    const countQuery = { ...query, $and: [...query.$and] }
-    if ("service_at_locations.location.geometry" in countQuery) {
-      delete countQuery["service_at_locations.location.geometry"]
-
-      countQuery["$and"].push({
-        "service_at_locations.location.geometry": {
-          $exists: true,
-          $ne: null,
-        },
-      })
-    }
-    return countQuery
-  },
-
-  /**
    *
    * @param {*} query
    * @param {*} perPage
@@ -178,14 +138,6 @@ module.exports = {
    */
   async executeQuery(query, perPage, page) {
     const Service = db().collection("indexed_services")
-    const countQuery = this.createCountQuery(query)
-
-    logger.debug("query")
-    logger.debug(query)
-    logger.debug(JSON.stringify(query))
-    logger.debug("countQuery")
-    logger.debug(countQuery)
-    logger.debug(JSON.stringify(countQuery))
 
     const queryProjection = query.$text
       ? {
@@ -196,16 +148,27 @@ module.exports = {
           ...projection,
         }
 
+    const sort = query.$text
+      ? {
+          score: { $meta: "textScore" },
+          updated_at: -1,
+        }
+      : {
+          updated_at: -1,
+        }
+
+    logger.debug("query")
+    logger.debug(query)
+    logger.debug(JSON.stringify(query))
+
     const [results, count] = await Promise.all([
       Service.find(query)
         .project(queryProjection)
-        .sort(
-          query.$text ? { score: { $meta: "textScore" } } : { updated_at: -1 }
-        )
+        .sort(sort)
         .limit(perPage)
         .skip((page - 1) * perPage)
         .toArray(),
-      Service.countDocuments(countQuery),
+      Service.countDocuments(query),
     ])
 
     return { results, count }

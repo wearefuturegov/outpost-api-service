@@ -107,8 +107,8 @@ describe("get-services", () => {
         )
         expect(geocode).toHaveBeenCalledWith(queryParams.location)
         expect(interpreted_location).toEqual(results[0].formatted_address)
-        expect(lat).toBeCloseTo(parseInt(results[0].geometry.location.lat))
-        expect(lng).toBeCloseTo(parseInt(results[0].geometry.location.lng))
+        expect(lat).toBeCloseTo(parseFloat(results[0].geometry.location.lat))
+        expect(lng).toBeCloseTo(parseFloat(results[0].geometry.location.lng))
       })
 
       it("should return undefined if invalid location is provided", async () => {

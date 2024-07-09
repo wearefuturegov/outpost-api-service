@@ -1,8 +1,8 @@
 const filters = require("./../../../src/lib/filters")
 
-describe("locationGeometry", () => {
+describe("filterLocation", () => {
   it("should return an empty object if lat and lng are not provided", () => {
-    expect(filters.locationGeometry()).toEqual({})
+    expect(filters.filterLocation()).toEqual({})
   })
 
   it("should return a query object if lat and lng are provided", () => {
@@ -10,15 +10,33 @@ describe("locationGeometry", () => {
     const lng = "-74.0060"
     const expectedQuery = {
       "service_at_locations.location.geometry": {
-        $nearSphere: {
-          $geometry: {
-            type: "Point",
-            coordinates: [parseFloat(lng), parseFloat(lat)],
-          },
+        $geoWithin: {
+          $centerSphere: [[parseFloat(lng), parseFloat(lat)], 20 / 3963.2],
         },
       },
     }
-    expect(filters.locationGeometry(lat, lng)).toEqual(expectedQuery)
+    expect(filters.filterLocation(lat, lng, false)).toEqual(expectedQuery)
+  })
+
+  it("should return a different query object if lat and lng and keywordSearch are provided", () => {
+    const lat = "40.7128"
+    const lng = "-74.0060"
+    const expectedQuery = {
+      $or: [
+        {
+          "service_at_locations.location.geometry": {
+            $geoWithin: {
+              $centerSphere: [
+                [parseFloat(lng), parseFloat(lat)],
+                20 / 3963.2, // miles x 1609.34 = Distance in meters
+              ],
+            },
+          },
+        },
+        { "service_at_locations.location.geometry": { $exists: false } },
+      ],
+    }
+    expect(filters.filterLocation(lat, lng, true)).toEqual(expectedQuery)
   })
 })
 
