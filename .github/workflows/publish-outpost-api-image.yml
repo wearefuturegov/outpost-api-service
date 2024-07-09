@@ -7,7 +7,7 @@ on:
     branches: [develop, staging, production, feature/arch]
 
 env:
-  BUILDX_NO_DEFAULT_ATTESTATIONS: 1
+  # BUILDX_NO_DEFAULT_ATTESTATIONS: 1
 
 jobs:
   publish-outpost-api-image:
@@ -16,10 +16,10 @@ jobs:
       matrix:
         os: [ubuntu-latest]
         arch: [x64, arm64, linux/arm64/v8]
-        platforms:
-          - linux/amd64
-          - linux/arm64
-          - linux/arm64/v8
+        # platforms:
+        # - linux/amd64
+        # - linux/arm64
+        # - linux/arm64/v8
     steps:
       - name: "Checkout GitHub Action"
         uses: actions/checkout@main
