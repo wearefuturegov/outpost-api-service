@@ -14,12 +14,12 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        os: [ubuntu-latest]
-        arch: [x64, arm64, linux/arm64/v8]
-        # platforms:
-        #   - linux/amd64
-        #   - linux/arm64
-        #   - linux/arm64/v8
+        # os: [ubuntu-latest]
+        # arch: [x64, arm64, linux/arm64/v8]
+        platforms:
+          - linux/amd64
+          - linux/arm64
+          - linux/arm64/v8
     steps:
       - name: "Checkout GitHub Action"
         uses: actions/checkout@main
@@ -47,6 +47,8 @@ jobs:
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
+        with:
+          platforms: ${{ matrix.platforms }}
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
