@@ -6,12 +6,20 @@ on:
   push:
     branches: [develop, staging, production, feature/arch]
 
+env:
+  BUILDX_NO_DEFAULT_ATTESTATIONS: 1
+
 jobs:
   publish-outpost-api-image:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        platforms: ["linux/amd64", "linux/arm64"]
+        os: [ubuntu-latest]
+        arch: [x64, arm64, linux/arm64/v8]
+        platforms:
+          - linux/amd64
+          - linux/arm64
+          - linux/arm64/v8
     steps:
       - name: "Checkout GitHub Action"
         uses: actions/checkout@main
