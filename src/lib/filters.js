@@ -1,28 +1,40 @@
 const { db } = require("../db")
+const logger = require("../../utils/logger")
 
 module.exports = {
-  locationGeometry: (lat, lng) => {
-    let query = {}
-    if (lat && lng) {
-      query["locations.geometry"] = {
-        // remember if you take out nearsphere to update the executeQuery function!
-        // this lets us get accurate result counts
-        // $geoWithin: {
-        //   $centerSphere: [
-        //     [parseFloat(lng), parseFloat(lat)],
-        //     10 / 3963.2, // 10 miles radius
-        //   ],
-        // },
-        // but this is how its always been done so we will keep this for now
-        $nearSphere: {
-          $geometry: {
-            type: "Point",
-            coordinates: [parseFloat(lng), parseFloat(lat)],
+  filterLocation: (lat, lng, keywordSearch) => {
+    if (lat !== undefined && lng !== undefined) {
+      logger.debug(
+        `Looking for services near ${parseFloat(lat)}, ${parseFloat(lng)} `
+      )
+      // if the query has keyword search then we need to make sure that we return services with no location still too
+      if (keywordSearch) {
+        return {
+          $or: [
+            {
+              "service_at_locations.location.geometry": {
+                $geoWithin: {
+                  $centerSphere: [
+                    [parseFloat(lng), parseFloat(lat)],
+                    20 / 3963.2, // miles x 1609.34 = Distance in meters
+                  ],
+                },
+              },
+            },
+            { "service_at_locations.location.geometry": { $exists: false } },
+          ],
+        }
+      } else {
+        return {
+          "service_at_locations.location.geometry": {
+            $geoWithin: {
+              $centerSphere: [[parseFloat(lng), parseFloat(lat)], 20 / 3963.2], // miles x 1609.34 = Distance in meters
+            },
           },
-        },
+        }
       }
     }
-    return query
+    return {}
   },
 
   visibleNow: () => {
@@ -47,18 +59,10 @@ module.exports = {
    * @param  {...any} args
    * @returns
    */
-  filterKeywords: async (keywords, locationInQuery = false) => {
+  filterKeywords: async keywords => {
     let query = {}
     if (keywords) {
-      if (locationInQuery) {
-        const Service = db().collection("indexed_services")
-        const docs = await Service.find({
-          $text: { $search: keywords },
-        }).toArray()
-        query._id = { $in: docs.map(doc => doc._id) }
-      } else {
-        query.$text = { $search: keywords }
-      }
+      query.$text = { $search: keywords }
     }
     return query
   },
@@ -202,7 +206,9 @@ module.exports = {
   filterAccessibilities: accessibilities => {
     if (accessibilities?.length > 0) {
       return {
-        "locations.accessibilities.slug": { $in: accessibilities },
+        "service_at_locations.location.accessibilities.slug": {
+          $in: accessibilities,
+        },
       }
     }
     return {}

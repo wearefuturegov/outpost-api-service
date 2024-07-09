@@ -9,9 +9,6 @@ on:
 jobs:
   publish-outpost-api-image:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        platforms: ["linux/amd64", "linux/arm64", "linux/arm64/v8"]
     steps:
       - name: "Checkout GitHub Action"
         uses: actions/checkout@main
@@ -37,19 +34,12 @@ jobs:
             echo "tag=default" >> $GITHUB_ENV
           fi
 
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
       - name: Build and push outpost api docker image
         uses: docker/build-push-action@v5
         with:
           context: .
           tags: ghcr.io/wearefuturegov/outpost-api-service:${{ env.tag }}
           file: Dockerfile.production
-          platforms: ${{ matrix.platforms }}
           push: true
-          outputs: type=image,name=target,annotation-index.org.opencontainers.image.description=Outpost API Service image
+          outputs: type=image,name=target,annotation-index.org.opencontainers.image.description=Outpost API Service image,oci-mediatypes=false
           labels: org.opencontainers.image.source=https://github.com/wearefuturegov/outpost-api-service
