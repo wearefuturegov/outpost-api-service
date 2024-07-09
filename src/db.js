@@ -27,6 +27,23 @@ module.exports = {
         } else {
           logger.info(`Connected to the "${dbName}" database`)
         }
+
+        // ensure that the location index exists
+        const indexName = "service_at_locations.location.geometry_2dsphere"
+        try {
+          const indexExists = await db
+            .collection("indexed_services")
+            .indexExists(indexName)
+
+          if (!indexExists) {
+            logger.warn(
+              `The index ${indexName} does not exist on your collection, please run prepare-indices script to create it or you will not return correct results.`
+            )
+          }
+        } catch (err) {
+          logger.error(`Unable to check for location index ${err}`)
+        }
+
         cb(db)
       })
       .catch(err => {
