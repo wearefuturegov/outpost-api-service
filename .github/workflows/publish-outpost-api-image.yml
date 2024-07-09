@@ -6,9 +6,6 @@ on:
   push:
     branches: [develop, staging, production, feature/arch]
 
-env:
-  BUILDX_NO_DEFAULT_ATTESTATIONS: 1
-
 jobs:
   publish-outpost-api-image:
     runs-on: ubuntu-latest
@@ -52,6 +49,8 @@ jobs:
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
+        env:
+          BUILDX_NO_DEFAULT_ATTESTATIONS: 1
 
       - name: Build and push outpost api docker image
         uses: docker/build-push-action@v5
