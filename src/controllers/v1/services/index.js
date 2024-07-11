@@ -38,7 +38,8 @@ module.exports = {
       const { results, count } = await getServices.executeQuery(
         query,
         parameters.perPage,
-        parameters.page
+        parameters.page,
+        parameters
       )
       const content = getServices.buildContent(
         results,
