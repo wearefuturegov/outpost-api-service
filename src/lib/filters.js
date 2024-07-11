@@ -2,6 +2,26 @@ const { db } = require("../db")
 const logger = require("../../utils/logger")
 
 module.exports = {
+  locationGeometry: (lat, lng) => {
+    let query = {}
+    if (lat && lng) {
+      query["service_at_locations.location.geometry"] = {
+        $nearSphere: {
+          $geometry: {
+            type: "Point",
+            coordinates: [parseFloat(lng), parseFloat(lat)],
+          },
+          $maxDistance: 20 * 1609.34, // miles x 1609.34 = Distance in meters
+        },
+      }
+    }
+    return query
+  },
+
+  /**
+   * @deprecated because we've gone back to nearSphere for now
+   * @returns
+   */
   filterLocation: (lat, lng, keywordSearch) => {
     if (lat !== undefined && lng !== undefined) {
       logger.debug(
@@ -63,6 +83,29 @@ module.exports = {
     let query = {}
     if (keywords) {
       query.$text = { $search: keywords }
+    }
+    return query
+  },
+
+  /**
+   * if there is a location or lat or lng value then we do a search first for keyword to refine the location search query
+   * $text performs a text search on the content of the fields indexed with a text index.
+   * In this case it will search the name_text_description_text index
+   * @TODO test http://localhost:3001/api/v1/services
+   * @TODO test http://localhost:3001/api/v1/services?location=London
+   * @TODO test http://localhost:3001/api/v1/services?lat=51.2107714&lng=0.31105&per_page=10
+   * @param {*} keywords
+   * @param  {...any} args
+   * @returns
+   */
+  filterLocationKeywords: async keywords => {
+    let query = {}
+    if (keywords) {
+      const Service = db().collection("indexed_services")
+      const docs = await Service.find({
+        $text: { $search: keywords },
+      }).toArray()
+      query._id = { $in: docs.map(doc => doc._id) }
     }
     return query
   },
