@@ -15,6 +15,7 @@ describe("index", () => {
     const next = jest.fn()
 
     const parameters = { perPage: 10, page: 2 }
+    const queryType = undefined
     const query = { id: 123 }
     const results = [{ id: 123, name: "Test Service" }]
     const count = 1
@@ -31,11 +32,12 @@ describe("index", () => {
 
     expect(getServices.parseRequestParameters).toHaveBeenCalledWith(req.query)
 
-    expect(getServices.buildQuery).toHaveBeenCalledWith(parameters)
+    expect(getServices.buildQuery).toHaveBeenCalledWith(parameters, queryType)
     expect(getServices.executeQuery).toHaveBeenCalledWith(
       query,
       parameters.perPage,
-      parameters.page
+      parameters.page,
+      queryType
     )
     expect(getServices.buildContent).toHaveBeenCalledWith(
       results,
