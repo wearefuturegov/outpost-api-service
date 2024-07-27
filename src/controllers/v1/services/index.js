@@ -1,4 +1,5 @@
 const logger = require("../../../../utils/logger")
+const queries = require("../../../lib/queries")
 const { getServices, getService } = require("./routes")
 
 module.exports = {
@@ -33,12 +34,16 @@ module.exports = {
       const parameters = await getServices.parseRequestParameters(req.query)
       logger.info(parameters)
 
-      const query = await getServices.buildQuery(parameters)
+      const queryType = queries.queryType(parameters)
+      logger.info(`ℹ️ Query type is "${queryType}"`)
+
+      const query = await getServices.buildQuery(parameters, queryType)
 
       const { results, count } = await getServices.executeQuery(
         query,
         parameters.perPage,
-        parameters.page
+        parameters.page,
+        queryType
       )
       const content = getServices.buildContent(
         results,
