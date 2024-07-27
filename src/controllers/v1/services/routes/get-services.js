@@ -1,7 +1,9 @@
 const filters = require("../../../../lib/filters")
+const queries = require("../../../../lib/queries")
 const { calculateDistance, geocode, projection } = require("../../../../lib")
 const { db } = require("../../../../db")
 const logger = require("../../../../../utils/logger")
+const locations = require("../../../../lib/locations")
 
 module.exports = {
   /**
@@ -12,6 +14,7 @@ module.exports = {
   parseRequestParameters: async queryParams => {
     const perPage = parseInt(queryParams.per_page) || 50
     const page = parseInt(queryParams.page) || 1
+    const proximity = parseInt(queryParams.proximity) || 5 * 1609.34 // miles x 1609.34 = Distance in meters
     const keywords = queryParams.keywords
     const location = queryParams.location
     let lat = queryParams?.lat ? parseFloat(queryParams.lat) : undefined
@@ -68,6 +71,7 @@ module.exports = {
     return {
       perPage,
       page,
+      proximity,
       keywords,
       location,
       lat,
@@ -84,82 +88,224 @@ module.exports = {
       interpreted_location,
     }
   },
+
   /**
-   *
+   * This builds the query based on the queryType
+   * There are currently 4 query types, keyword, location, keyword_location, default
+   * The main difference is the location queries which require a different structure
    * @param {*} parameters
    * @returns
    */
-  buildQuery: async parameters => {
+  buildQuery: async (parameters, queryType) => {
     let query = {}
     query.$and = []
 
-    const filterKeywords = await filters.filterKeywords(parameters.keywords)
-    query = { ...filterKeywords, ...query }
+    switch (queryType) {
+      case "location":
+        // if location but no keyword is requested
+        // we want to filter by location
+        // and we add the other standard filters as well
+        // http://localhost:3002/api/v1/services?location=Buckingham%2C%20MK18%2C%20UK
+        // {
+        //   "service_at_locations.location.geometry": {
+        //     "$nearSphere": {
+        //       "$geometry": { "type": "Point", "coordinates": [-0.987645, 51.999326] },
+        //       "$maxDistance": 32186.8
+        //     }
+        //   },
+        //   "$and": [
+        //     {
+        //       "$or": [
+        //         { "visible_from": null },
+        //         { "visible_from": { "$lte": "2024-07-27T10:30:24.535Z" } }
+        //       ]
+        //     },
+        //     {
+        //       "$or": [
+        //         { "visible_to": null },
+        //         { "visible_to": { "$gte": "2024-07-27T10:30:24.535Z" } }
+        //       ]
+        //     }
+        //   ]
+        // }
 
-    // add filtering for ages
-    const ages = filters.filterAges(parameters.minAge, parameters.maxAge)
-    query.$and.push(...ages)
+        const filterLocationNearest = locations.filterLocationNearest(
+          parameters.lat,
+          parameters.lng,
+          parameters.proximity
+        )
+        query = { ...filterLocationNearest, ...query }
 
-    // apply only filters
-    const only = filters.filterOnly(parameters.only)
-    query.$and.push(...only)
+        query = await queries.addFilters(query, parameters)
 
-    // apply visibility filtering
-    const visibleNow = filters.visibleNow()
-    query.$and.push(...visibleNow)
+        break
+      case "keyword_location":
+        // if theres a keyword and a location then we do a search first
+        // for keyword to refine the location search query we also include the other
+        // filters and exclude those with no location set
+        // and we add the other standard filters as well
+        // {
+        //   "service_at_locations.location.geometry": {
+        //     "$nearSphere": {
+        //       "$geometry": { "type": "Point", "coordinates": [-0.987645, 51.999326] },
+        //       "$maxDistance": 32186.8
+        //     }
+        //   },
+        //   "_id": {
+        //     "$in": [
+        //       new ObjectId('66903557ea279c1d167cdf41')
+        //     ]
+        //   },
+        //   "$and": [
+        //     {
+        //       "$or": [
+        //         { "visible_from": null },
+        //         { "visible_from": { "$lte": "2024-07-27T11:08:21.487Z" } }
+        //       ]
+        //     },
+        //     {
+        //       "$or": [
+        //         { "visible_to": null },
+        //         { "visible_to": { "$gte": "2024-07-27T11:08:21.487Z" } }
+        //       ]
+        //     }
+        //   ]
+        // }
 
-    // add filtering
-    query.$and.push(
-      filters.filterLocation(
-        parameters.lat,
-        parameters.lng,
-        query?.$text ?? false
-      ),
-      filters.filterDirectories(parameters.directories),
-      filters.filterTaxonomies(parameters.taxonomies),
-      filters.filterNeeds(parameters.needs),
-      filters.filterSuitabilities(parameters.suitabilities),
-      filters.filterAccessibilities(parameters.accessibilities),
-      filters.filterDays(parameters.days)
-    )
+        const filterLocationKeywords = await locations.filterLocationKeywords(
+          parameters.keywords,
+          parameters
+        )
+        query = { ...filterLocationKeywords, ...query }
 
-    // clear empty values
-    query.$and = query.$and.filter(obj => Object.keys(obj).length !== 0)
+        const filterLocationKeywordsNearest = locations.filterLocationNearest(
+          parameters.lat,
+          parameters.lng,
+          parameters.proximity
+        )
+        query = { ...filterLocationKeywordsNearest, ...query }
+
+        query = await queries.addFilters(query, parameters)
+
+        break
+      default:
+        // if theres a keyword then its added to the query
+        // and we add the other standard filters as well
+        // This is what http://localhost:3002/api/v1/services?days=monday&keywords=send%20peer%20support looks like
+        // {
+        //   "$text": { "$search": "send peer support" },
+        //   "$and": [
+        //     {
+        //       "$or": [
+        //         { "visible_from": null },
+        //         { "visible_from": { "$lte": "2024-07-27T10:01:37.059Z" } }
+        //       ]
+        //     },
+        //     {
+        //       "$or": [
+        //         { "visible_to": null },
+        //         { "visible_to": { "$gte": "2024-07-27T10:01:37.059Z" } }
+        //       ]
+        //     },
+        //     { "regular_schedules.weekday": { "$in": ["monday"] } }
+        //   ]
+        // }
+        const filterKeywords = await filters.filterKeywords(parameters.keywords)
+        query = { ...filterKeywords, ...query }
+        query = await queries.addFilters(query, parameters)
+        break
+    }
 
     return query
   },
 
   /**
-   *
+   * this is done because of the $nearSphere method in locationGeometry.
+   * This is because The $nearSphere operator cannot be used with the
+   * countDocuments() method in MongoDB because countDocuments()
+   * uses an aggregation pipeline under the hood, and $nearSphere is not
+   * allowed in an aggregation pipeline.
+   * so as a workaround if we're using nearsphere we update the count
+   * query to prevent errors
+   * the result of nearsphere will include all services with a location
+   * so this query is a good substitute to get the totalElements value
+   * http://localhost:3001/api/v1/services?lat=51.2107714&lng=0.31105&per_page=10&suitabilities=physical-disabilities
+   * @param {*} query
+   * @returns
+   */
+  createCountQuery: query => {
+    // "budget deep clone" we spread $and so can modify it for countQuery only
+    const countQuery = { ...query, $and: [...query.$and] }
+    if ("service_at_locations.location.geometry" in countQuery) {
+      delete countQuery["service_at_locations.location.geometry"]
+
+      countQuery["$and"].push({
+        "service_at_locations.location.geometry": {
+          $exists: true,
+          $ne: null,
+        },
+      })
+    }
+    logger.debug("\n\nℹ️ countQuery - added due to queryType")
+    logger.debug(countQuery)
+    logger.debug(JSON.stringify(countQuery))
+    return countQuery
+  },
+
+  /**
+   * Executes the query
    * @param {*} query
    * @param {*} perPage
    * @param {*} page
    * @returns
    */
-  async executeQuery(query, perPage, page) {
+  async executeQuery(query, perPage, page, queryType) {
     const Service = db().collection("indexed_services")
 
-    const queryProjection = query.$text
-      ? {
+    let queryProjection
+    let sort
+    let countQuery
+
+    switch (queryType) {
+      case "location":
+        queryProjection = { ...projection }
+        sort = {}
+        countQuery = this.createCountQuery(query)
+        break
+      case "keyword_location":
+        queryProjection = { ...projection }
+        sort = {}
+        countQuery = this.createCountQuery(query)
+        break
+      case "keyword":
+        queryProjection = {
           ...projection,
           score: { $meta: "textScore" },
         }
-      : {
-          ...projection,
-        }
-
-    const sort = query.$text
-      ? {
+        sort = {
           score: { $meta: "textScore" },
           updated_at: -1,
         }
-      : {
-          updated_at: -1,
-        }
+        countQuery = query
+        break
+      default:
+        queryProjection = { ...projection }
+        sort = { updated_at: -1 }
+        countQuery = query
+        break
+    }
 
-    logger.debug("query")
+    logger.debug("\n\nℹ️ query")
     logger.debug(query)
     logger.debug(JSON.stringify(query))
+
+    logger.debug("\n\nℹ️ projection")
+    logger.debug(projection)
+    logger.debug(JSON.stringify(projection))
+
+    logger.debug("\n\nℹ️ sort")
+    logger.debug(sort)
+    logger.debug(JSON.stringify(sort))
 
     const [results, count] = await Promise.all([
       Service.find(query)
@@ -168,7 +314,7 @@ module.exports = {
         .limit(perPage)
         .skip((page - 1) * perPage)
         .toArray(),
-      Service.countDocuments(query),
+      Service.countDocuments(countQuery),
     ])
 
     return { results, count }

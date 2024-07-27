@@ -18,6 +18,7 @@ describe("get-services", () => {
     it("should return thes parameters when no query parameters are provided", async () => {
       const expectedResults = {
         perPage: 50,
+        proximity: 8046.7,
         page: 1,
         keywords: undefined,
         location: undefined,
