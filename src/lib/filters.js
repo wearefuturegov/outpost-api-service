@@ -2,41 +2,6 @@ const { db } = require("../db")
 const logger = require("../../utils/logger")
 
 module.exports = {
-  filterLocation: (lat, lng, keywordSearch) => {
-    if (lat !== undefined && lng !== undefined) {
-      logger.debug(
-        `Looking for services near ${parseFloat(lat)}, ${parseFloat(lng)} `
-      )
-      // if the query has keyword search then we need to make sure that we return services with no location still too
-      if (keywordSearch) {
-        return {
-          $or: [
-            {
-              "service_at_locations.location.geometry": {
-                $geoWithin: {
-                  $centerSphere: [
-                    [parseFloat(lng), parseFloat(lat)],
-                    20 / 3963.2, // miles x 1609.34 = Distance in meters
-                  ],
-                },
-              },
-            },
-            { "service_at_locations.location.geometry": { $exists: false } },
-          ],
-        }
-      } else {
-        return {
-          "service_at_locations.location.geometry": {
-            $geoWithin: {
-              $centerSphere: [[parseFloat(lng), parseFloat(lat)], 20 / 3963.2], // miles x 1609.34 = Distance in meters
-            },
-          },
-        }
-      }
-    }
-    return {}
-  },
-
   visibleNow: () => {
     let query = []
     query.push({
