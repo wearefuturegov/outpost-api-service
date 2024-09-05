@@ -208,3 +208,94 @@ describe("filterDays", () => {
     expect(filters.filterDays(days)).toEqual(expectedQuery)
   })
 })
+
+describe("filterStartTimeEndTimeDay", () => {
+  it("should return a query object if start_time, end_time, and day are provided", () => {
+    const startTime = ["22:00"]
+    const endTime = ["22:30"]
+    const day = ["Monday"]
+    const expectedQuery = {
+      $or: [
+        {
+          "regular_schedules.opens_at": { $gte: "22:00" },
+          "regular_schedules.closes_at": { $lte: "22:30" },
+          "regular_schedules.weekday": "Monday",
+        },
+      ],
+    }
+    expect(filters.filterStartTimeEndTimeDay(startTime, endTime, day)).toEqual(
+      expectedQuery
+    )
+  })
+
+  it("should return a query object if only start_time is provided", () => {
+    const startTime = ["22:00"]
+    const endTime = []
+    const day = []
+    const expectedQuery = {
+      $or: [
+        {
+          "regular_schedules.opens_at": { $gte: "22:00" },
+        },
+      ],
+    }
+    expect(filters.filterStartTimeEndTimeDay(startTime, endTime, day)).toEqual(
+      expectedQuery
+    )
+  })
+
+  it("should return a query object if only end_time is provided", () => {
+    const startTime = []
+    const endTime = ["22:30"]
+    const day = []
+    const expectedQuery = {
+      $or: [
+        {
+          "regular_schedules.closes_at": { $lte: "22:30" },
+        },
+      ],
+    }
+    expect(filters.filterStartTimeEndTimeDay(startTime, endTime, day)).toEqual(
+      expectedQuery
+    )
+  })
+
+  it("should return a query object if only day is provided", () => {
+    const startTime = []
+    const endTime = []
+    const day = ["Monday"]
+    const expectedQuery = {
+      $or: [
+        {
+          "regular_schedules.weekday": "Monday",
+        },
+      ],
+    }
+    expect(filters.filterStartTimeEndTimeDay(startTime, endTime, day)).toEqual(
+      expectedQuery
+    )
+  })
+
+  it("should return a query object if multiple sets of start_time, end_time, and day are provided", () => {
+    const startTime = ["22:00", "22:00"]
+    const endTime = ["22:30", "22:30"]
+    const day = ["Monday", "Monday"]
+    const expectedQuery = {
+      $or: [
+        {
+          "regular_schedules.opens_at": { $gte: "22:00" },
+          "regular_schedules.closes_at": { $lte: "22:30" },
+          "regular_schedules.weekday": "Monday",
+        },
+        {
+          "regular_schedules.opens_at": { $gte: "22:00" },
+          "regular_schedules.closes_at": { $lte: "22:30" },
+          "regular_schedules.weekday": "Monday",
+        },
+      ],
+    }
+    expect(filters.filterStartTimeEndTimeDay(startTime, endTime, day)).toEqual(
+      expectedQuery
+    )
+  })
+})

@@ -81,7 +81,12 @@ module.exports = {
       filters.filterNeeds(parameters.needs),
       filters.filterSuitabilities(parameters.suitabilities),
       filters.filterAccessibilities(parameters.accessibilities),
-      filters.filterDays(parameters.days)
+      filters.filterDays(parameters.daysDeprecated),
+      filters.filterStartTimeEndTimeDay(
+        parameters.startTime,
+        parameters.endTime,
+        parameters.day
+      )
     )
 
     // clear empty values

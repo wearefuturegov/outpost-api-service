@@ -181,9 +181,9 @@ module.exports = {
 
   /**
    * Days
-   * this has changed from previous iterations since the results returned wouldn't be accurate
-   * @TODO test http://localhost:3001/api/v1/services?accessibilities=accessible-toilet-facilities
-   * @TODO test http://localhost:3001/api/v1/services?accessibilities=accessible-toilet-facilities&accessibilities=wheelchair-accessible-entrance
+   * Returns the regular_schedules.weekday for the days
+   * @TODO test http://localhost:3001/api/v1/services?days=Monday
+   * @TODO test http://localhost:3001/api/v1/services?days=Monday&days=Tuesday
    * @param {*} needs
    * @returns
    */
@@ -194,5 +194,43 @@ module.exports = {
       }
     }
     return {}
+  },
+
+  /**
+   * Filters by opens_at, closes_at and day
+   * @TODO test http://localhost:3002/api/v1/services?start_time=22:00&end_time=22:30&day=MO
+   * @TODO test http://localhost:3002/api/v1/services?start_time=22:00
+   * @TODO test http://localhost:3002/api/v1/services?end_time=22:30
+   * @TODO test http://localhost:3002/api/v1/services?day=MO
+   * @TODO test http://localhost:3002/api/v1/services?start_time=22:00&end_time=22:30&day=MO&start_time=22:00&end_time=22:30&day=MO
+   * @param {*} startTime
+   * @param {*} endTime
+   * @param {*} day
+   * @returns
+   */
+  filterStartTimeEndTimeDay: (startTime, endTime, day) => {
+    let orConditions = []
+    const maxLength = Math.max(startTime.length, endTime.length, day.length)
+
+    for (let i = 0; i < maxLength; i++) {
+      let condition = {}
+      if (startTime[i]) {
+        condition["regular_schedules.opens_at"] = { $gte: startTime[i] }
+      }
+      if (endTime[i]) {
+        condition["regular_schedules.closes_at"] = { $lte: endTime[i] }
+      }
+      if (day[i]) {
+        condition["regular_schedules.weekday"] = day[i]
+      }
+      orConditions.push(condition)
+    }
+
+    let query = {}
+    if (orConditions.length > 0) {
+      query.$or = orConditions
+    }
+
+    return query
   },
 }
