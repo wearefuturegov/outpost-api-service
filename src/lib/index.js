@@ -43,4 +43,17 @@ module.exports = {
     visible_from: 0,
     visible_to: 0,
   },
+
+  /**
+   * Used to map the day abbreviation to the full day names
+   */
+  dayMapping: {
+    SU: "Sunday",
+    MO: "Monday",
+    TU: "Tuesday",
+    WE: "Wednesday",
+    TH: "Thursday",
+    FR: "Friday",
+    SA: "Saturday",
+  },
 }
