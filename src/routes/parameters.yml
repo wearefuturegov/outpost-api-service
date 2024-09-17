@@ -1,0 +1,188 @@
+parameters:
+  per_page:
+    name: per_page
+    in: query
+    description: Number of items to return per page.
+    required: false
+    example: 10
+    schema:
+      type: integer
+      format: int64
+  page:
+    name: page
+    in: query
+    description: Page number
+    required: false
+    example: 1
+    schema:
+      type: integer
+      format: int64
+  location:
+    name: location
+    in: query
+    description: Location to search for, can be a postcode, town or city. This location will be geocoded by the API. Alternatively supply lat and lng. eg/ Buckingham, MK18, UK
+    required: false
+    schema:
+      type: string
+      # example: "Buckingham, MK18, UK"
+  lat:
+    name: lat
+    in: query
+    description: Latitude of the location to search around. Must be used with lng. eg/ 51.999326
+    required: false
+    schema:
+      type: number
+      format: double
+      # example: 51.999326
+  lng:
+    name: lng
+    in: query
+    description: Longitude of the location to search around. Must be used with lat. eg/ -0.987645
+    required: false
+    schema:
+      type: number
+      format: double
+      # example: -0.987645
+  proximity:
+    name: proximity
+    in: query
+    description: Proximity to the location in meters, to convert from miles to meters multiply miles by 1609.34 eg/ 8046.7
+    required: false
+    schema:
+      type: integer
+      format: double
+  keywords:
+    name: keywords
+    in: query
+    description: Keywords to search for in the event title, description or categories. eg/ "SEND peer support"
+    reuqired: false
+    schema:
+      type: string
+      # example: "SEND peer support"
+  directories:
+    name: directories
+    in: query
+    description: Filter events by directory/team. eg/ "bfis" "bod"
+    required: false
+    schema:
+      type: array
+      # example:
+      #   - "bfis"
+      #   - "bod"
+  taxonomies:
+    name: taxonomies
+    in: query
+    description: Filter events by taxonomy. Uses AND so taxonomy-1 taxonomy-2 will match services with both taxonomy-1 AND taxonomy-2 eg/ "arts-culture-heritage" "health-wellbeing"
+    required: false
+    schema:
+      type: array
+      # example:
+      #   - "arts-culture-heritage"
+      #   - "health-wellbeing"
+  needs:
+    name: needs
+    in: query
+    description: SEND needs to filter events by. Uses AND so need-1 need-2 will match services with both need-1 AND need-2 eg/ "autism" "communication-and-interaction"
+    required: false
+    schema:
+      type: array
+      # example:
+      #   - "autism"
+      #   - "communication-and-interaction"
+  suitabilities:
+    name: suitabilities
+    in: query
+    description: Suitabilities to filter events by. Uses AND so suitability-1 suitability-2 will match services with both suitability-1 AND suitability-2 eg/ "learning-difficulties" "mental-health-acquired-brain-injury"
+    required: false
+    schema:
+      type: array
+      # example:
+      #   - "learning-difficulties"
+      #   - "mental-health-acquired-brain-injury"
+  accessibilities:
+    name: accessibilities
+    in: query
+    description: Accessibilities to filter events by. Uses AND so accessibility-1 accessibility-2 will match services with both accessibility-1 AND accessibility-2 eg/ "building-has-lift" "car-parking"
+    required: false
+    schema:
+      type: array
+      # example:
+      #   - "building-has-lift"
+      #   - "car-parking"
+
+  days:
+    name: days
+    in: query
+    description: Filter events by day of the week. Uses AND so Monday Tuesday will match serviced with both Monday AND Tuesday eg/ "Monday" "Tuesday" "Wednesday"
+    required: false
+    schema:
+      type: array
+      enum:
+        - "Monday"
+        - "Tuesday"
+        - "Wednesday"
+        - "Thursday"
+        - "Friday"
+        - "Saturday"
+        - "Sunday"
+      # example:
+      #   - "Monday"
+      #   - "Tuesday"
+      #   - "Wednesday"
+
+  only:
+    name: only
+    in: query
+    description: Find services that are only x. Currently only free is supported. eg/ "free"
+    required: false
+    schema:
+      type: enum
+      enum:
+        - "free"
+
+  min_age:
+    name: min_age
+    in: query
+    description: Minimum age of the service user. eg/ 18
+    required: false
+    schema:
+      type: integer
+      format: int64
+      # example: 18
+
+  max_age:
+    name: max_age
+    in: query
+    description: Maximum age of the service user. eg/ 25
+    required: false
+    schema:
+      type: integer
+      format: int64
+      # example: 25
+
+  start_time:
+    name: start_time
+    in: query
+    description: Start time of the event. If used with end_time and day the number of these params must be equal. eg/ 09:00
+    required: false
+    schema:
+      type: string
+      # example: "09:00"
+
+  end_time:
+    name: end_time
+    in: query
+    description: End time of the event. If used with start_time and day the number of these params must be equal. eg/ 17:00
+    required: false
+    schema:
+      type: string
+      # example: "17:00"
+
+  day:
+    name: day
+    in: query
+    description: Day of the week the event is on. If used with start_time and end_time the number of these params must be equal. eg/ "Monday"
+    required: false
+    schema:
+      type: string
+      # example: "Monday"
