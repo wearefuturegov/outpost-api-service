@@ -186,3 +186,23 @@ parameters:
     schema:
       type: string
       # example: "Monday"
+
+  start_date:
+    name: start_date
+    in: query
+    description: Start date of the event. eg/ 2020-01-01
+    required: false
+    schema:
+      type: string
+      format: date
+      # example: "2020-01-01"
+
+  end_date:
+    name: end_date
+    in: query
+    description: End date of the event. eg/ 2020-01-31
+    required: false
+    schema:
+      type: string
+      format: date
+      # example: "2020-01-31"

@@ -30,6 +30,8 @@ module.exports.setup = app => {
    *       - $ref: '#/parameters/start_time'
    *       - $ref: '#/parameters/end_time'
    *       - $ref: '#/parameters/day'
+   *       - $ref: '#/parameters/start_date'
+   *       - $ref: '#/parameters/end_date'
    *      responses:
    *        '200':
    *          description: successful operation
