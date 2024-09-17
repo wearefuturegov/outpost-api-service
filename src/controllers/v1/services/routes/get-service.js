@@ -31,7 +31,7 @@ module.exports = {
 
     let result = await db()
       .collection("indexed_services")
-      .findOne(query, projection)
+      .findOne(query, { projection })
 
     return result
   },

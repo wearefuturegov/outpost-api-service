@@ -5,6 +5,7 @@ const {
 const filters = require("./../../../../../src/lib/filters")
 const Index = require("./../../../../../src/lib")
 const { db } = require("./../../../../../src/db")
+const { projection } = require("./../../../../../src/lib")
 
 jest.mock("./../../../../../src/lib/filters")
 jest.mock("./../../../../../src/db")
@@ -36,7 +37,7 @@ describe("get-service", () => {
       const returnedResult = await executeQuery(query)
 
       expect(mockDb.collection).toHaveBeenCalledWith("indexed_services")
-      expect(mockDb.findOne).toHaveBeenCalledWith(query, Index.projection)
+      expect(mockDb.findOne).toHaveBeenCalledWith(query, { projection })
       expect(returnedResult).toEqual(result)
     })
   })

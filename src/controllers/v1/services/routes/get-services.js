@@ -49,6 +49,9 @@ module.exports = {
     let endTime = queryParams?.end_time ? [].concat(queryParams.end_time) : []
     let day = queryParams?.day ? [].concat(queryParams.day) : []
 
+    const startDate = queryParams.start_date || undefined
+    const endDate = queryParams.end_date || undefined
+
     // not a param but we want to save on requests
     let interpreted_location
 
@@ -112,6 +115,8 @@ module.exports = {
       startTime,
       endTime,
       day,
+      startDate,
+      endDate,
       accessibilities,
       only,
       minAge,
