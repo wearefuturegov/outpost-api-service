@@ -86,6 +86,10 @@ module.exports = {
         parameters.startTime,
         parameters.endTime,
         parameters.day
+      ),
+      await filters.filterStartDateEndDate(
+        parameters.startDate,
+        parameters.endDate
       )
     )
 

@@ -1,7 +1,8 @@
 const { db } = require("../db")
 const logger = require("../../utils/logger")
+const { RRule, RRuleSet, rrulestr } = require("rrule")
 
-module.exports = {
+const filters = {
   visibleNow: () => {
     let query = []
     query.push({
@@ -233,4 +234,120 @@ module.exports = {
 
     return query
   },
+
+  /**
+   * Filter for services that have events that occur between two dates
+   * @param {*} startDate
+   * @param {*} endDate
+   * @returns
+   */
+  filterStartDateEndDate: async (startDate, endDate) => {
+    if (startDate && endDate) {
+      logger.debug("filterStartDateEndDate")
+      // find services with regularSchedules
+      const visibleNow = filters.visibleNow()
+      const rs_query = {
+        regular_schedules: {
+          $elemMatch: {
+            dtstart: { $exists: true, $ne: null },
+          },
+        },
+        $and: [...visibleNow],
+      }
+
+      logger.debug("\n\nℹ️ filterStartDateEndDate query")
+      logger.debug(rs_query)
+      logger.debug(JSON.stringify(rs_query))
+
+      const Service = db().collection("indexed_services")
+      const regularSchedules = await Service.find(rs_query).toArray()
+
+      const singleEventRegularScheduleIds = []
+      const recurringEventRegularScheduleIds = []
+      regularSchedules.forEach(service => {
+        service.regular_schedules.forEach(schedule => {
+          // find single events that occur between the start and end date
+          if (
+            schedule.freq === null &&
+            new Date(schedule.dtstart) >= new Date(startDate) &&
+            new Date(schedule.dtstart) <= new Date(endDate)
+          ) {
+            singleEventRegularScheduleIds.push(schedule.id)
+          }
+          // find recurring events that occur between the start and end date
+
+          const { freq, interval, byday, bymonthday, dtstart, until, count } =
+            schedule
+
+          if (freq !== null) {
+            const freqMapping = {
+              week: "WEEKLY",
+              month: "MONTHLY",
+            }
+
+            let options = {
+              dtstart: new Date(dtstart),
+              freq: RRule[freqMapping[freq]],
+              interval: interval,
+              until: until ? new Date(until) : null,
+              count: count,
+            }
+
+            // weekly repeating events can have MO or TU,WE
+            if (freq === "week") {
+              options = {
+                byweekday: byday
+                  ? byday.split(",").map(day => RRule[day])
+                  : null,
+                ...options,
+              }
+            }
+
+            // monthly repeating can have bymonthday = 1[st day of the month]
+            // or byweekday in format -1MO [Last Monday of the month], 2TU [Second Tuesday of the month] etc which uses bysetpos
+            if (freq === "month") {
+              if (bymonthday) {
+                options = {
+                  bymonthday: bymonthday ? bymonthday : null,
+                  ...options,
+                }
+              } else if (byday) {
+                const bysetpos = byday.split(",").map(day => {
+                  const match = day.match(/(-?\d+)([A-Z]+)/)
+                  return [match[1], match[2]]
+                })
+                options = {
+                  bysetpos: bysetpos[0][0],
+                  byweekday: RRule[bysetpos[0][1]],
+                  ...options,
+                }
+              }
+            }
+            const rule = new RRule(options)
+            const dates = rule.between(
+              new Date(startDate),
+              new Date(endDate),
+              true
+            )
+
+            if (dates.length > 0) {
+              recurringEventRegularScheduleIds.push(schedule.id)
+            }
+          }
+        })
+      })
+
+      return {
+        "regular_schedules.id": {
+          $in: [
+            ...singleEventRegularScheduleIds,
+            ...recurringEventRegularScheduleIds,
+          ],
+        },
+      }
+    }
+    return {}
+  },
 }
+
+module.exports = filters

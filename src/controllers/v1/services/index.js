@@ -28,6 +28,7 @@ module.exports = {
    * @param {function} next - Express next middleware function.
    * @returns {Promise<void>} Promise representing the operation status.
    * @throws {Error} If an error occurs during execution.
+   *
    */
   index: async (req, res, next) => {
     try {

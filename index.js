@@ -2,13 +2,14 @@ require("dotenv").config()
 const express = require("express")
 const forceSSL = require("express-force-ssl")
 const rateLimit = require("express-rate-limit")
+const swaggerUi = require("swagger-ui-express")
+const swaggerJsdoc = require("swagger-jsdoc")
 const cors = require("cors")
 const morganMiddleware = require("./middleware/morgan.middleware")
 const logger = require("./utils/logger")
 const { connect } = require("./src/db")
-const v1 = require("./src/controllers/v1")
+const routes = require("./src/routes/routes")
 
-const router = express.Router()
 const server = express()
 const port = process.env.PORT || 3000
 const host_port = process.env.HOST_PORT || process.env.PORT || 3000
@@ -49,21 +50,69 @@ server.use(cors())
 server.use(morganMiddleware)
 
 /**
+ * Swagger
+ */
+
+const swaggerJsdocOptions = {
+  swaggerDefinition: {
+    openapi: "3.0.0",
+    info: {
+      title: "Outpost API Service",
+      version: "1.0.0",
+      description:
+        "The Outpost service API is a RESTful API that provides access to the services in the Outpost Platform",
+      version: "1.0.0",
+      contact: {
+        name: "Outpost API service",
+        url: "https://github.com/wearefuturegov/outpost-api-service",
+      },
+    },
+    externalDocs: {
+      description: "Find out more about the Outpost Platform",
+      url: "https://outpost-platform.wearefuturegov.com/",
+    },
+    tags: [
+      {
+        name: "Services",
+        description: "Services and events",
+        externalDocs: {
+          description: "Find out more",
+          url: "https://developers.openreferraluk.org/Guidance/",
+        },
+      },
+      {
+        name: "Utilities",
+        description: "Utilities and helpers",
+      },
+    ],
+  },
+  apis: ["./src/routes/*.js", "./src/routes/*.yml"],
+  failOnErrors: true,
+}
+
+const openapiSpecification = swaggerJsdoc(swaggerJsdocOptions)
+
+var options = {
+  swaggerOptions: {
+    // validatorUrl: null,
+  },
+}
+server.use(
+  "/api-docs",
+  swaggerUi.serve,
+  swaggerUi.setup(openapiSpecification, options)
+)
+server.get("/schema.json", (req, res) => {
+  // And here we go, we serve it.
+  res.setHeader("Content-Type", "application/json")
+  res.send(openapiSpecification)
+})
+
+/**
  * Routes
  */
 
-server.get("/api/v1/services", v1.services.index)
-server.get("/api/v1/services/:id", v1.services.show)
-
-server.get("/health", (req, res) => {
-  const data = {
-    uptime: process.uptime(),
-    message: "Ok",
-    date: new Date(),
-  }
-
-  res.status(200).send(data)
-})
+routes.setup(server)
 
 // 404
 server.use("*", (req, res, next) => {

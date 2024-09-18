@@ -32,6 +32,8 @@ describe("get-services", () => {
         startTime: [],
         endTime: [],
         day: [],
+        startDate: undefined,
+        endDate: undefined,
         accessibilities: [],
         only: [],
         minAge: undefined,
@@ -374,6 +376,32 @@ describe("get-services", () => {
         await expect(parseRequestParameters(params)).rejects.toThrow(
           "The number of start_time, end_time, and day parameters must be equal if more than one is provided"
         )
+      })
+    })
+
+    describe("startDate", () => {
+      it("should return undefined if startDate are not provided", async () => {
+        const { startDate } = await parseRequestParameters({})
+        expect(startDate).toBeUndefined()
+      })
+      it("should return a value if a value is passed through", async () => {
+        const { startDate } = await parseRequestParameters({
+          start_date: "09:00",
+        })
+        expect(startDate).toEqual("09:00")
+      })
+    })
+
+    describe("endDate", () => {
+      it("should return undefined if startDate are not provided", async () => {
+        const { endDate } = await parseRequestParameters({})
+        expect(endDate).toBeUndefined()
+      })
+      it("should return a value if a value is passed through", async () => {
+        const { endDate } = await parseRequestParameters({
+          end_date: "09:00",
+        })
+        expect(endDate).toEqual("09:00")
       })
     })
 
