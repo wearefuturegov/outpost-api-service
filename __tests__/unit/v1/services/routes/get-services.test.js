@@ -28,7 +28,12 @@ describe("get-services", () => {
         taxonomies: [],
         needs: [],
         suitabilities: [],
-        days: [],
+        daysDeprecated: [],
+        startTime: [],
+        endTime: [],
+        day: [],
+        startDate: undefined,
+        endDate: undefined,
         accessibilities: [],
         only: [],
         minAge: undefined,
@@ -268,22 +273,135 @@ describe("get-services", () => {
       })
     })
 
-    describe("days", () => {
+    describe("daysDeprecated", () => {
       it("should return undefined if days are not provided", async () => {
-        const { days } = await parseRequestParameters({})
-        expect(days).toEqual([])
+        const { daysDeprecated } = await parseRequestParameters({})
+        expect(daysDeprecated).toEqual([])
       })
       it("should return a unique array multiple targets are passed through", async () => {
-        const { days } = await parseRequestParameters({
+        const { daysDeprecated } = await parseRequestParameters({
           days: ["a", "b,a"],
         })
-        expect(new Set(days)).toEqual(new Set(["a", "b"]))
+        expect(new Set(daysDeprecated)).toEqual(new Set(["a", "b"]))
       })
       it("should return a unique array one target is passed through", async () => {
-        const { days } = await parseRequestParameters({
+        const { daysDeprecated } = await parseRequestParameters({
           days: ["a,b"],
         })
-        expect(new Set(days)).toEqual(new Set(["a", "b"]))
+        expect(new Set(daysDeprecated)).toEqual(new Set(["a", "b"]))
+      })
+    })
+
+    describe("startTime", () => {
+      it("should return undefined if days are not provided", async () => {
+        const { startTime } = await parseRequestParameters({})
+        expect(startTime).toEqual([])
+      })
+      it("should return a non unique array multiple targets are passed through", async () => {
+        const { startTime } = await parseRequestParameters({
+          start_time: ["10:00", "10:00,11:00"],
+        })
+        expect(startTime).toEqual(["10:00", "10:00", "11:00"])
+      })
+      it("should return a non unique array one target is passed through", async () => {
+        const { startTime } = await parseRequestParameters({
+          start_time: ["10:00,10:00,11:00"],
+        })
+        expect(startTime).toEqual(["10:00", "10:00", "11:00"])
+      })
+    })
+
+    describe("endTime", () => {
+      it("should return undefined if days are not provided", async () => {
+        const { endTime } = await parseRequestParameters({})
+        expect(endTime).toEqual([])
+      })
+      it("should return a non unique array multiple targets are passed through", async () => {
+        const { endTime } = await parseRequestParameters({
+          end_time: ["10:00", "10:00,11:00"],
+        })
+        expect(endTime).toEqual(["10:00", "10:00", "11:00"])
+      })
+      it("should return a non unique array one target is passed through", async () => {
+        const { endTime } = await parseRequestParameters({
+          end_time: ["10:00,10:00,11:00"],
+        })
+        expect(endTime).toEqual(["10:00", "10:00", "11:00"])
+      })
+    })
+
+    describe("day", () => {
+      it("should return undefined if day are not provided", async () => {
+        const { day } = await parseRequestParameters({})
+        expect(day).toEqual([])
+      })
+      it("should return a non unique array multiple targets are passed through", async () => {
+        const { day } = await parseRequestParameters({
+          day: ["MO", "MO,TU"],
+        })
+        expect(day).toEqual(["Monday", "Monday", "Tuesday"])
+      })
+      it("should return a non unique array one target is passed through", async () => {
+        const { day } = await parseRequestParameters({
+          day: ["MO,MO,TU"],
+        })
+        expect(day).toEqual(["Monday", "Monday", "Tuesday"])
+      })
+    })
+
+    describe("startTime, endTime, and day validation", () => {
+      it("should not throw an error if start_time and end_time are of equal lengths", async () => {
+        const params = {
+          start_time: ["10:00,11:00"],
+          end_time: ["12:00,13:00"],
+        }
+        await expect(parseRequestParameters(params)).resolves.not.toThrow()
+      })
+
+      it("should not throw an error if start_time, end_time, and day are of equal lengths", async () => {
+        const params = {
+          start_time: ["10:00,11:00"],
+          end_time: ["12:00,13:00"],
+          day: ["MO,TU"],
+        }
+        await expect(parseRequestParameters(params)).resolves.not.toThrow()
+      })
+
+      it("should throw an error if start_time, end_time, and day are of unequal lengths", async () => {
+        const params = {
+          start_time: ["10:00,11:00"],
+          end_time: ["12:00"],
+          day: ["MO,TU"],
+        }
+        await expect(parseRequestParameters(params)).rejects.toThrow(
+          "The number of start_time, end_time, and day parameters must be equal if more than one is provided"
+        )
+      })
+    })
+
+    describe("startDate", () => {
+      it("should return undefined if startDate are not provided", async () => {
+        const { startDate } = await parseRequestParameters({})
+        expect(startDate).toBeUndefined()
+      })
+      it("should return a value if a value is passed through", async () => {
+        const { startDate } = await parseRequestParameters({
+          start_date: "09:00",
+        })
+        expect(startDate).toEqual("09:00")
+      })
+    })
+
+    describe("endDate", () => {
+      it("should return undefined if startDate are not provided", async () => {
+        const { endDate } = await parseRequestParameters({})
+        expect(endDate).toBeUndefined()
+      })
+      it("should return a value if a value is passed through", async () => {
+        const { endDate } = await parseRequestParameters({
+          end_date: "09:00",
+        })
+        expect(endDate).toEqual("09:00")
       })
     })
 

@@ -1,6 +1,11 @@
 const filters = require("../../../../lib/filters")
 const queries = require("../../../../lib/queries")
-const { calculateDistance, geocode, projection } = require("../../../../lib")
+const {
+  calculateDistance,
+  geocode,
+  projection,
+  dayMapping,
+} = require("../../../../lib")
 const { db } = require("../../../../db")
 const logger = require("../../../../../utils/logger")
 const locations = require("../../../../lib/locations")
@@ -32,10 +37,20 @@ module.exports = {
     let accessibilities = queryParams?.accessibilities
       ? [].concat(queryParams.accessibilities)
       : []
-    let days = queryParams?.days ? [].concat(queryParams.days) : []
+    // days = days=Monday&days=Tuesday -  deprecated
+    let daysDeprecated = queryParams?.days ? [].concat(queryParams.days) : []
     let only = queryParams?.only ? [].concat(queryParams.only) : []
     const minAge = parseInt(queryParams.min_age) || undefined
     const maxAge = parseInt(queryParams.max_age) || undefined
+
+    let startTime = queryParams?.start_time
+      ? [].concat(queryParams.start_time)
+      : []
+    let endTime = queryParams?.end_time ? [].concat(queryParams.end_time) : []
+    let day = queryParams?.day ? [].concat(queryParams.day) : []
+
+    const startDate = queryParams.start_date || undefined
+    const endDate = queryParams.end_date || undefined
 
     // not a param but we want to save on requests
     let interpreted_location
@@ -51,8 +66,24 @@ module.exports = {
     accessibilities = [
       ...new Set(accessibilities.flatMap(str => str.split(","))),
     ]
-    days = [...new Set(days.flatMap(str => str.split(",")))]
+    daysDeprecated = [...new Set(daysDeprecated.flatMap(str => str.split(",")))]
     only = [...new Set(only.flatMap(str => str.split(",")))]
+
+    // we dont de-dupe these as they are used in pairs
+    startTime = [...startTime.flatMap(str => str.split(","))]
+    endTime = [...endTime.flatMap(str => str.split(","))]
+    day = [...day.flatMap(str => str.split(","))]
+    // Convert day abbreviations to full names
+    day = day.map(d => dayMapping[d] || d)
+
+    const lengths = [startTime.length, endTime.length, day.length].filter(
+      len => len > 0
+    )
+    if (lengths.length > 1 && !lengths.every(len => len === lengths[0])) {
+      throw new Error(
+        "The number of start_time, end_time, and day parameters must be equal if more than one is provided"
+      )
+    }
 
     // if we have a location then we can find lat lng
     if (location && !(lat && lng)) {
@@ -80,7 +111,12 @@ module.exports = {
       taxonomies,
       needs,
       suitabilities,
-      days,
+      daysDeprecated,
+      startTime,
+      endTime,
+      day,
+      startDate,
+      endDate,
       accessibilities,
       only,
       minAge,
