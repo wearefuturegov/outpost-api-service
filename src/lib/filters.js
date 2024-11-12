@@ -56,12 +56,38 @@ const filters = {
 
   // filters by only
   // only=free
+  // only=needs-referral
+  // only=local-offer
   filterOnly: only => {
     let query = []
     if (only) {
       if (only.includes("free")) query.push({ free: true })
+      if (only.includes("needs-referral")) query.push({ needs_referral: true })
+      if (only.includes("local-offer"))
+        query.push({ local_offer: { $exists: true, $ne: null } })
       // if(only.includes("open-weekends")) query["regular_schedules.weekday"] = { $in: [ "Saturday", "Sunday"] }
       // if(only.includes("open-after-six")) query["regular_schedules.closes_at"] = { $gte: "18:00"}
+    }
+    return query
+  },
+
+  // filters by meta
+  // meta-service-meta-key=service-meta-value
+  filterMeta: meta => {
+    let query = []
+    if (meta) {
+      meta.forEach(m => {
+        if (m.key && m.value) {
+          query.push({
+            meta: {
+              $elemMatch: {
+                key: m.key,
+                value: m.value,
+              },
+            },
+          })
+        }
+      })
     }
     return query
   },
