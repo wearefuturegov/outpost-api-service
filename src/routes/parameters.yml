@@ -145,7 +145,7 @@ parameters:
   meta:
     name: meta
     in: query
-    description: Prefix the key with meta- to filter by meta data. eg/ "meta-foo=bar"
+    description: Filter by meta data. eg/ "meta=foo:bar"
     required: false
     schema:
       type: string
