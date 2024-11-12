@@ -71,6 +71,27 @@ const filters = {
     return query
   },
 
+  // filters by meta
+  // meta-service-meta-key=service-meta-value
+  filterMeta: meta => {
+    let query = []
+    if (meta) {
+      meta.forEach(m => {
+        if (m.key && m.value) {
+          query.push({
+            meta: {
+              $elemMatch: {
+                key: m.key,
+                value: m.value,
+              },
+            },
+          })
+        }
+      })
+    }
+    return query
+  },
+
   /**
    * Specify the taxonomies to search for services
    * We are using $in to match any of the taxonomies

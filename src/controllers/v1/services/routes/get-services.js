@@ -44,6 +44,10 @@ module.exports = {
     // days = days=Monday&days=Tuesday -  deprecated
     let daysDeprecated = queryParams?.days ? [].concat(queryParams.days) : []
     let only = queryParams?.only ? [].concat(queryParams.only) : []
+    let meta = Object.entries(queryParams)
+      .filter(([key]) => key.startsWith("meta-"))
+      .map(([key, value]) => ({ key: key.replace("meta-", ""), value }))
+
     const minAge = parseInt(queryParams.min_age) || undefined
     const maxAge = parseInt(queryParams.max_age) || undefined
 
@@ -123,6 +127,7 @@ module.exports = {
       endDate,
       accessibilities,
       only,
+      meta,
       minAge,
       maxAge,
       interpreted_location,

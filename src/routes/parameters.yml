@@ -133,7 +133,7 @@ parameters:
   only:
     name: only
     in: query
-    description: Find services that are only x. Currently only free is supported. eg/ "free"
+    description: Find services that are only x. Currently only free, needs-referral and local-offer are supported. eg/ "free"
     required: false
     schema:
       type: enum
@@ -141,6 +141,14 @@ parameters:
         - "free"
         - "needs-referral"
         - "local-offer"
+
+  meta:
+    name: meta
+    in: query
+    description: Prefix the key with meta- to filter by meta data. eg/ "meta-foo=bar"
+    required: false
+    schema:
+      type: string
 
   min_age:
     name: min_age

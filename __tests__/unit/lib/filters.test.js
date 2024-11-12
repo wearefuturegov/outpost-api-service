@@ -108,6 +108,53 @@ describe("filterOnly", () => {
   })
 })
 
+describe("filterMeta", () => {
+  it("should return an empty array if meta is not provided", () => {
+    expect(filters.filterMeta()).toEqual([])
+  })
+  it("should return a query object with key and value if meta includes information", () => {
+    expect(
+      filters.filterMeta([
+        { key: "service-meta-key", value: "service-meta-value" },
+      ])
+    ).toEqual([
+      {
+        meta: {
+          $elemMatch: {
+            key: "service-meta-key",
+            value: "service-meta-value",
+          },
+        },
+      },
+    ])
+  })
+  it("should return a query object with each key and value if meta includes information", () => {
+    expect(
+      filters.filterMeta([
+        { key: "service-meta-key", value: "service-meta-value" },
+        { key: "service-meta-key-2", value: "service-meta-value-2" },
+      ])
+    ).toEqual([
+      {
+        meta: {
+          $elemMatch: {
+            key: "service-meta-key",
+            value: "service-meta-value",
+          },
+        },
+      },
+      {
+        meta: {
+          $elemMatch: {
+            key: "service-meta-key-2",
+            value: "service-meta-value-2",
+          },
+        },
+      },
+    ])
+  })
+})
+
 describe("filterTaxonomies", () => {
   it("should return an empty object if taxonomies is not provided", () => {
     expect(filters.filterTaxonomies()).toEqual({})
