@@ -65,6 +65,10 @@ module.exports = {
     const only = filters.filterOnly(parameters.only)
     query.$and.push(...only)
 
+    // apply meta filters
+    const meta = filters.filterMeta(parameters.meta)
+    query.$and.push(...meta)
+
     // apply visibility filtering
     const visibleNow = filters.visibleNow()
     query.$and.push(...visibleNow)
