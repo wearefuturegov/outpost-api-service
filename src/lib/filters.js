@@ -56,10 +56,15 @@ const filters = {
 
   // filters by only
   // only=free
+  // only=needs-referral
+  // only=local-offer
   filterOnly: only => {
     let query = []
     if (only) {
       if (only.includes("free")) query.push({ free: true })
+      if (only.includes("needs-referral")) query.push({ needs_referral: true })
+      if (only.includes("local-offer"))
+        query.push({ local_offer: { $exists: true, $ne: null } })
       // if(only.includes("open-weekends")) query["regular_schedules.weekday"] = { $in: [ "Saturday", "Sunday"] }
       // if(only.includes("open-after-six")) query["regular_schedules.closes_at"] = { $gte: "18:00"}
     }

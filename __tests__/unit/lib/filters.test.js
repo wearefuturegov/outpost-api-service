@@ -94,6 +94,18 @@ describe("filterOnly", () => {
     const expectedQuery = [{ free: true }]
     expect(filters.filterOnly(only)).toEqual(expectedQuery)
   })
+
+  it('should return a query object with local_offer: true if only includes "local-offer"', () => {
+    const localOffer = ["local-offer"]
+    const expectedQuery = [{ local_offer: { $exists: true, $ne: null } }]
+    expect(filters.filterOnly(localOffer)).toEqual(expectedQuery)
+  })
+
+  it('should return a query object with needs_referral: true if only includes "needs-referral"', () => {
+    const needsReferral = ["needs-referral"]
+    const expectedQuery = [{ needs_referral: true }]
+    expect(filters.filterOnly(needsReferral)).toEqual(expectedQuery)
+  })
 })
 
 describe("filterTaxonomies", () => {

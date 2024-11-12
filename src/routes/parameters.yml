@@ -139,6 +139,8 @@ parameters:
       type: enum
       enum:
         - "free"
+        - "needs-referral"
+        - "local-offer"
 
   min_age:
     name: min_age
