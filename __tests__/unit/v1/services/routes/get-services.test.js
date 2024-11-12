@@ -430,9 +430,17 @@ describe("get-services", () => {
         const { meta } = await parseRequestParameters({})
         expect(meta).toEqual([])
       })
-      it("should return a unique array multiple targets are passed through", async () => {
+      it("should cope with multiple dividers", async () => {
         const { meta } = await parseRequestParameters({
-          "meta-service-meta-key": "service-meta-value",
+          meta: "service-meta-key:service-meta:-value",
+        })
+        expect(new Set(meta)).toEqual(
+          new Set([{ key: "service-meta-key", value: "service-meta:-value" }])
+        )
+      })
+      it("should return a unique array if one target is passed through", async () => {
+        const { meta } = await parseRequestParameters({
+          meta: "service-meta-key:service-meta-value",
         })
         expect(new Set(meta)).toEqual(
           new Set([{ key: "service-meta-key", value: "service-meta-value" }])
@@ -440,9 +448,12 @@ describe("get-services", () => {
       })
       it("should return a unique array one target is passed through", async () => {
         const { meta } = await parseRequestParameters({
-          "meta-service-meta-key": "service-meta-value",
-          "meta-service-meta-key-2": "service-meta-value-2",
+          meta: [
+            "service-meta-key:service-meta-value",
+            "service-meta-key-2:service-meta-value-2",
+          ],
         })
+        console.log(meta)
         expect(new Set(meta)).toEqual(
           new Set([
             { key: "service-meta-key", value: "service-meta-value" },

@@ -44,9 +44,7 @@ module.exports = {
     // days = days=Monday&days=Tuesday -  deprecated
     let daysDeprecated = queryParams?.days ? [].concat(queryParams.days) : []
     let only = queryParams?.only ? [].concat(queryParams.only) : []
-    let meta = Object.entries(queryParams)
-      .filter(([key]) => key.startsWith("meta-"))
-      .map(([key, value]) => ({ key: key.replace("meta-", ""), value }))
+    let meta = queryParams?.meta ? [].concat(queryParams.meta) : []
 
     const minAge = parseInt(queryParams.min_age) || undefined
     const maxAge = parseInt(queryParams.max_age) || undefined
@@ -76,6 +74,14 @@ module.exports = {
     ]
     daysDeprecated = [...new Set(daysDeprecated.flatMap(str => str.split(",")))]
     only = [...new Set(only.flatMap(str => str.split(",")))]
+    meta = [...new Set(meta.flatMap(str => str.split(",")))]
+
+    // split meta into key values
+    meta = meta.map(str => {
+      const [key, ...valueParts] = str.split(":")
+      const value = valueParts.join(":") // Join the rest of the parts to handle cases where the value contains colons
+      return { key, value }
+    })
 
     // we dont de-dupe these as they are used in pairs
     startTime = [...startTime.flatMap(str => str.split(","))]
