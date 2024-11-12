@@ -18,6 +18,10 @@ module.exports = {
    */
   parseRequestParameters: async queryParams => {
     const perPage = parseInt(queryParams.per_page) || 50
+    if (perPage > 200) {
+      throw new Error("Per page limit is 200")
+    }
+
     const page = parseInt(queryParams.page) || 1
     const proximity = parseInt(queryParams.proximity) || 5 * 1609.34 // miles x 1609.34 = Distance in meters
     const keywords = queryParams.keywords
@@ -396,6 +400,7 @@ module.exports = {
       totalElements: count,
       first: currentPage === 1,
       last: currentPage === totalPages,
+      perPage: perPage,
       interpreted_location,
       content: content,
     }
