@@ -25,6 +25,7 @@ module.exports.setup = app => {
    *       - $ref: '#/parameters/accessibilities'
    *       - $ref: '#/parameters/days'
    *       - $ref: '#/parameters/only'
+   *       - $ref: '#/parameters/meta'
    *       - $ref: '#/parameters/min_age'
    *       - $ref: '#/parameters/max_age'
    *       - $ref: '#/parameters/start_time'

@@ -94,6 +94,65 @@ describe("filterOnly", () => {
     const expectedQuery = [{ free: true }]
     expect(filters.filterOnly(only)).toEqual(expectedQuery)
   })
+
+  it('should return a query object with local_offer: true if only includes "local-offer"', () => {
+    const localOffer = ["local-offer"]
+    const expectedQuery = [{ local_offer: { $exists: true, $ne: null } }]
+    expect(filters.filterOnly(localOffer)).toEqual(expectedQuery)
+  })
+
+  it('should return a query object with needs_referral: true if only includes "needs-referral"', () => {
+    const needsReferral = ["needs-referral"]
+    const expectedQuery = [{ needs_referral: true }]
+    expect(filters.filterOnly(needsReferral)).toEqual(expectedQuery)
+  })
+})
+
+describe("filterMeta", () => {
+  it("should return an empty array if meta is not provided", () => {
+    expect(filters.filterMeta()).toEqual([])
+  })
+  it("should return a query object with key and value if meta includes information", () => {
+    expect(
+      filters.filterMeta([
+        { key: "service-meta-key", value: "service-meta-value" },
+      ])
+    ).toEqual([
+      {
+        meta: {
+          $elemMatch: {
+            key: "service-meta-key",
+            value: "service-meta-value",
+          },
+        },
+      },
+    ])
+  })
+  it("should return a query object with each key and value if meta includes information", () => {
+    expect(
+      filters.filterMeta([
+        { key: "service-meta-key", value: "service-meta-value" },
+        { key: "service-meta-key-2", value: "service-meta-value-2" },
+      ])
+    ).toEqual([
+      {
+        meta: {
+          $elemMatch: {
+            key: "service-meta-key",
+            value: "service-meta-value",
+          },
+        },
+      },
+      {
+        meta: {
+          $elemMatch: {
+            key: "service-meta-key-2",
+            value: "service-meta-value-2",
+          },
+        },
+      },
+    ])
+  })
 })
 
 describe("filterTaxonomies", () => {

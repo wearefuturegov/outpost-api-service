@@ -18,6 +18,10 @@ module.exports = {
    */
   parseRequestParameters: async queryParams => {
     const perPage = parseInt(queryParams.per_page) || 50
+    if (perPage > 200) {
+      throw new Error("Per page limit is 200")
+    }
+
     const page = parseInt(queryParams.page) || 1
     const proximity = parseInt(queryParams.proximity) || 5 * 1609.34 // miles x 1609.34 = Distance in meters
     const keywords = queryParams.keywords
@@ -40,6 +44,8 @@ module.exports = {
     // days = days=Monday&days=Tuesday -  deprecated
     let daysDeprecated = queryParams?.days ? [].concat(queryParams.days) : []
     let only = queryParams?.only ? [].concat(queryParams.only) : []
+    let meta = queryParams?.meta ? [].concat(queryParams.meta) : []
+
     const minAge = parseInt(queryParams.min_age) || undefined
     const maxAge = parseInt(queryParams.max_age) || undefined
 
@@ -68,6 +74,14 @@ module.exports = {
     ]
     daysDeprecated = [...new Set(daysDeprecated.flatMap(str => str.split(",")))]
     only = [...new Set(only.flatMap(str => str.split(",")))]
+    meta = [...new Set(meta.flatMap(str => str.split(",")))]
+
+    // split meta into key values
+    meta = meta.map(str => {
+      const [key, ...valueParts] = str.split(":")
+      const value = valueParts.join(":") // Join the rest of the parts to handle cases where the value contains colons
+      return { key, value }
+    })
 
     // we dont de-dupe these as they are used in pairs
     startTime = [...startTime.flatMap(str => str.split(","))]
@@ -119,6 +133,7 @@ module.exports = {
       endDate,
       accessibilities,
       only,
+      meta,
       minAge,
       maxAge,
       interpreted_location,
@@ -396,6 +411,7 @@ module.exports = {
       totalElements: count,
       first: currentPage === 1,
       last: currentPage === totalPages,
+      perPage: perPage,
       interpreted_location,
       content: content,
     }
