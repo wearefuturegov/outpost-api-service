@@ -342,10 +342,15 @@ const filters = {
                   const match = day.match(/(-?\d+)([A-Z]+)/)
                   return [match[1], match[2]]
                 })
-                options = {
-                  bysetpos: bysetpos[0][0],
-                  byweekday: RRule[bysetpos[0][1]],
-                  ...options,
+                const [firstBysetpos] = bysetpos || []
+                const [position, weekday] = firstBysetpos || []
+
+                if (position && weekday) {
+                  options = {
+                    bysetpos: parseInt(position),
+                    byweekday: RRule[weekday],
+                    ...options,
+                  }
                 }
               }
             }
