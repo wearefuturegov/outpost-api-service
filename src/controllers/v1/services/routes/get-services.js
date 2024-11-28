@@ -17,7 +17,9 @@ module.exports = {
    * @returns
    */
   parseRequestParameters: async queryParams => {
-    const perPage = parseInt(queryParams.per_page) || 50
+    const perPage = queryParams.per_page
+      ? parseInt(queryParams.per_page) || 50
+      : 50
     if (perPage > 200) {
       throw new Error("Per page limit is 200")
     }
@@ -379,10 +381,16 @@ module.exports = {
    * @returns
    */
   buildContent(results, lat, lng) {
-    return results.map(result => ({
-      ...result,
-      distance_away: calculateDistance(lat, lng, result.locations),
-    }))
+    return results.map(result => {
+      if (result.locations) {
+        return {
+          ...result,
+          distance_away: calculateDistance(lat, lng, result.locations),
+        }
+      } else {
+        return result
+      }
+    })
   },
 
   /**

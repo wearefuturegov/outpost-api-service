@@ -5,24 +5,26 @@ const fetch = require("isomorphic-unfetch")
 module.exports = {
   calculateDistance: (lat, lng, locations) => {
     let distances = []
-    locations.forEach(location => {
-      distances.push(
-        haversine(
-          {
-            latitude: lat,
-            longitude: lng,
-          },
-          {
-            latitude: location.geometry.coordinates[1],
-            longitude: location.geometry.coordinates[0],
-          },
-          {
-            unit: "mile",
-          }
+    if (locations) {
+      locations.forEach(location => {
+        distances.push(
+          haversine(
+            {
+              latitude: lat,
+              longitude: lng,
+            },
+            {
+              latitude: location.geometry.coordinates[1],
+              longitude: location.geometry.coordinates[0],
+            },
+            {
+              unit: "mile",
+            }
+          )
         )
-      )
-    })
-    return Math.min(...distances)
+      })
+      return Math.min(...distances)
+    }
   },
 
   geocode: async location => {
