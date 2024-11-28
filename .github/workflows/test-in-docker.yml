@@ -71,5 +71,5 @@ jobs:
           --network=outpost-api-test-network \
           outpost-api-service:${{ env.tag }}
           docker exec temp_container npm run dummy-data
-          docker exec temp_container npm run test
+          docker exec temp_container npm run test:unit
           docker stop temp_container
