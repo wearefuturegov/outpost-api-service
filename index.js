@@ -42,7 +42,9 @@ if (!isDevelopment) {
 server.use(
   rateLimit({
     windowMs: 1 * 60 * 1000, // 1 minute
-    max: 1000, // limit each IP to 1000 requests per windowMs
+    max: process.env.RATE_LIMIT ?? 100, // limit each IP to 100 requests per 1-minute window.
+    message: "Too many requests from this IP, please try again after a minute",
+    headers: true, // Include rate limit info in the response headers
   })
 )
 
