@@ -39,17 +39,22 @@ if (!isDevelopment) {
   }
 }
 
+server.use(cors())
+server.use(morganMiddleware)
+
 server.use(
   rateLimit({
     windowMs: 1 * 60 * 1000, // 1 minute
     max: process.env.RATE_LIMIT ?? 100, // limit each IP to 100 requests per 1-minute window.
     message: "Too many requests from this IP, please try again after a minute",
-    headers: true, // Include rate limit info in the response headers
+    standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
+    legacyHeaders: false, // Disable the `X-RateLimit-*` headers
+    handler: (req, res, next, options) =>
+      res.status(options.statusCode).json({
+        error: options.message,
+      }),
   })
 )
-
-server.use(cors())
-server.use(morganMiddleware)
 
 /**
  * Swagger
