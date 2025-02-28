@@ -27,6 +27,7 @@
     "isomorphic-unfetch": "^4.0.2",
     "mongodb": "^6.5.0",
     "morgan": "^1.10.0",
+    "redis": "^4.7.0",
     "rrule": "^2.8.1",
     "swagger-jsdoc": "^6.2.8",
     "swagger-ui-express": "^5.0.1",

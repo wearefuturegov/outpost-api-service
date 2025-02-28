@@ -14,6 +14,7 @@ services:
     # command: ["-f", "/dev/null"]
     environment:
       DB_URI: mongodb://${MONGO_INITDB_USERNAME:-outpost}:${MONGO_INITDB_PASSWORD:-password}@mongo/${MONGO_INITDB_DATABASE:-outpost_api_development}
+      REDIS_URL: redis://redis:6379
     platform: linux/arm64
     volumes:
       - ./:/app:cached
@@ -42,8 +43,18 @@ services:
       - external_network
       - internal_network
 
+  redis:
+    extends:
+      file: ./.docker/services/redis/redis.yml
+      service: redis
+    networks:
+      - external_network
+      - internal_network
+
 volumes:
   mongo-volume:
+  redis:
+    driver: local
 
 networks:
   external_network:

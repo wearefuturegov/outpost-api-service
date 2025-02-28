@@ -93,6 +93,7 @@ The following environmental variables are required.
 | `FORCE_SSL`      | Force SSL defaults to false unless this is set to true                              | true                                                                 | No        |
 | `HOST_PORT`      | If running in docker set this to change the exposed port, default is 3000           | 3001                                                                 | No        |
 | `RATE_LIMIT`     | Set this to change the number of requests allowed per minute per IP, default is 100 | 100                                                                  | No        |
+| `REDIS_URL`      | Redis url                                                                           | `redis://localhost:6379`                                             | No        |
 
 # ✨ Features
 

@@ -8,6 +8,7 @@ const cors = require("cors")
 const morganMiddleware = require("./middleware/morgan.middleware")
 const logger = require("./utils/logger")
 const { connect } = require("./src/db")
+const cache = require("./src/cache")
 const routes = require("./src/routes/routes")
 
 const server = express()
@@ -26,6 +27,15 @@ connect(() =>
     }://localhost:${host_port}/api/v1/services`
   )
 )
+
+/**
+ * Create the initial Redis connection here
+ */
+if (process.env.REDIS_URL) {
+  cache.connect(() => {
+    logger.info("🌵 Redis connection established")
+  })
+}
 
 /**
  * Settings & middleware

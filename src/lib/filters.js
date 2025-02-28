@@ -1,6 +1,7 @@
 const { db } = require("../db")
 const logger = require("../../utils/logger")
 const { RRule, RRuleSet, rrulestr } = require("rrule")
+const caching = require("./caching")
 
 const filters = {
   visibleNow: () => {
@@ -286,7 +287,28 @@ const filters = {
       logger.debug(JSON.stringify(rs_query))
 
       const Service = db().collection("indexed_services")
-      const regularSchedules = await Service.find(rs_query).toArray()
+
+      const rs_query_copy = JSON.parse(JSON.stringify(rs_query))
+      const cacheKey = `filterStartDateEndDate_${JSON.stringify(
+        filters.removeVisibleNow(rs_query_copy)
+      )}`
+
+      let regularSchedules = []
+
+      if (caching.enabled) {
+        const cachedData = await caching.getCachedData(cacheKey)
+        if (cachedData) {
+          logger.info(`Using cached results for filterStartDateEndDate query`)
+          regularSchedules = cachedData
+        } else {
+          regularSchedules = await Service.find(rs_query).toArray()
+          await caching.setCachedData(cacheKey, regularSchedules, {
+            EX: 6 * 60 * 60, // Cache for 6 hours
+          })
+        }
+      } else {
+        regularSchedules = await Service.find(rs_query).toArray()
+      }
 
       const singleEventRegularScheduleIds = []
       const recurringEventRegularScheduleIds = []
@@ -378,6 +400,36 @@ const filters = {
       }
     }
     return {}
+  },
+  /**
+   * Removes the visible now from a query for use in caching
+   * @param {*} query
+   * @returns
+   */
+  removeVisibleNow: query => {
+    if (query.$and) {
+      query.$and = query.$and.filter(condition => {
+        if (condition.$or) {
+          return !condition.$or.some(
+            subCondition =>
+              (subCondition.visible_from &&
+                (subCondition.visible_from === null ||
+                  subCondition.visible_from.$lte)) ||
+              (subCondition.visible_to &&
+                (subCondition.visible_to === null ||
+                  subCondition.visible_to.$gte))
+          )
+        }
+        return true
+      })
+    }
+    // Remove empty $and array
+    if (query && query.$and && query.$and.length === 0) {
+      const { $and, ...rest } = query
+      query = rest
+    }
+
+    return query
   },
 }
 

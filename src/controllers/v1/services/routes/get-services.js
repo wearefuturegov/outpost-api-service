@@ -9,6 +9,7 @@ const {
 const { db } = require("../../../../db")
 const logger = require("../../../../../utils/logger")
 const locations = require("../../../../lib/locations")
+const caching = require("../../../../lib/caching")
 
 module.exports = {
   /**
@@ -358,15 +359,53 @@ module.exports = {
     logger.debug(sort)
     logger.debug(JSON.stringify(sort))
 
-    const [results, count] = await Promise.all([
-      Service.find(query)
-        .project(queryProjection)
-        .sort(sort)
-        .limit(perPage)
-        .skip((page - 1) * perPage)
-        .toArray(),
-      Service.countDocuments(countQuery),
-    ])
+    const query_copy = JSON.parse(JSON.stringify(query))
+    const cacheKeyResults = `getServices_results_${JSON.stringify(
+      filters.removeVisibleNow(query_copy)
+    )}_${page}_${perPage}`
+    const countQuery_copy = JSON.parse(JSON.stringify(countQuery))
+    const cacheKeyCount = `getServices_count_${JSON.stringify(
+      filters.removeVisibleNow(countQuery_copy)
+    )}`
+
+    let results, count
+    if (caching.enabled) {
+      const cachedResults = await caching.getCachedData(cacheKeyResults)
+      const cachedCount = await caching.getCachedData(cacheKeyCount)
+
+      if (cachedResults && cachedCount) {
+        logger.info(`Using cached results and count for query`)
+        results = cachedResults
+        count = cachedCount
+      } else {
+        ;[results, count] = await Promise.all([
+          Service.find(query)
+            .project(queryProjection)
+            .sort(sort)
+            .limit(perPage)
+            .skip((page - 1) * perPage)
+            .toArray(),
+          Service.countDocuments(countQuery),
+        ])
+
+        await caching.setCachedData(cacheKeyResults, results, {
+          EX: 3600, // Cache for 1 hour
+        })
+        await caching.setCachedData(cacheKeyCount, count, {
+          EX: 3600, // Cache for 1  hour
+        })
+      }
+    } else {
+      ;[results, count] = await Promise.all([
+        Service.find(query)
+          .project(queryProjection)
+          .sort(sort)
+          .limit(perPage)
+          .skip((page - 1) * perPage)
+          .toArray(),
+        Service.countDocuments(countQuery),
+      ])
+    }
 
     return { results, count }
   },

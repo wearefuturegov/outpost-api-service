@@ -358,3 +358,283 @@ describe("filterStartTimeEndTimeDay", () => {
     )
   })
 })
+
+describe("removeVisibleNow", () => {
+  it("Should remove the visible_from and visible_to from the query", () => {
+    const query = {
+      $text: { $search: "send" },
+      $and: [
+        {
+          $or: [
+            { visible_from: null },
+            { visible_from: { $lte: "2025-02-27T22:58:30.423Z" } },
+          ],
+        },
+        {
+          $or: [
+            { visible_to: null },
+            { visible_to: { $gte: "2025-02-27T22:58:30.423Z" } },
+          ],
+        },
+        { "directories.label": { $in: ["bfis"] } },
+        {
+          "service_at_locations.location.geometry": {
+            $exists: true,
+            $ne: null,
+          },
+        },
+      ],
+    }
+    const expectedQuery = {
+      $text: { $search: "send" },
+      $and: [
+        { "directories.label": { $in: ["bfis"] } },
+        {
+          "service_at_locations.location.geometry": {
+            $exists: true,
+            $ne: null,
+          },
+        },
+      ],
+    }
+    expect(filters.removeVisibleNow(query)).toEqual(expectedQuery)
+  })
+
+  it("Should remove the visible_to from the query", () => {
+    const query = {
+      $text: { $search: "send" },
+      $and: [
+        {
+          $or: [
+            { visible_from: null },
+            { visible_from: { $lte: "2025-02-27T22:58:30.423Z" } },
+          ],
+        },
+        { "directories.label": { $in: ["bfis"] } },
+        {
+          "service_at_locations.location.geometry": {
+            $exists: true,
+            $ne: null,
+          },
+        },
+      ],
+    }
+    const expectedQuery = {
+      $text: { $search: "send" },
+      $and: [
+        { "directories.label": { $in: ["bfis"] } },
+        {
+          "service_at_locations.location.geometry": {
+            $exists: true,
+            $ne: null,
+          },
+        },
+      ],
+    }
+    expect(filters.removeVisibleNow(query)).toEqual(expectedQuery)
+  })
+
+  it("Should remove the visible_from from the query", () => {
+    const query = {
+      $text: { $search: "send" },
+      $and: [
+        {
+          $or: [
+            { visible_to: null },
+            { visible_to: { $gte: "2025-02-27T22:58:30.423Z" } },
+          ],
+        },
+        { "directories.label": { $in: ["bfis"] } },
+        {
+          "service_at_locations.location.geometry": {
+            $exists: true,
+            $ne: null,
+          },
+        },
+      ],
+    }
+    const expectedQuery = {
+      $text: { $search: "send" },
+      $and: [
+        { "directories.label": { $in: ["bfis"] } },
+        {
+          "service_at_locations.location.geometry": {
+            $exists: true,
+            $ne: null,
+          },
+        },
+      ],
+    }
+    expect(filters.removeVisibleNow(query)).toEqual(expectedQuery)
+  })
+
+  it("Should return the query as is if no visible_from or visible_to query", () => {
+    const query = {
+      $text: { $search: "send" },
+      $and: [
+        { "directories.label": { $in: ["bfis"] } },
+        {
+          "service_at_locations.location.geometry": {
+            $exists: true,
+            $ne: null,
+          },
+        },
+      ],
+    }
+    const expectedQuery = {
+      $text: { $search: "send" },
+      $and: [
+        { "directories.label": { $in: ["bfis"] } },
+        {
+          "service_at_locations.location.geometry": {
+            $exists: true,
+            $ne: null,
+          },
+        },
+      ],
+    }
+    expect(filters.removeVisibleNow(query)).toEqual(expectedQuery)
+  })
+
+  it("Should return the query as is if no visible_from query", () => {
+    const query = {
+      $text: { $search: "send" },
+      $and: [
+        {
+          $or: [
+            { visible_to: null },
+            { visible_to: { $gte: "2025-02-27T22:58:30.423Z" } },
+          ],
+        },
+        { "directories.label": { $in: ["bfis"] } },
+        {
+          "service_at_locations.location.geometry": {
+            $exists: true,
+            $ne: null,
+          },
+        },
+      ],
+    }
+    const expectedQuery = {
+      $text: { $search: "send" },
+      $and: [
+        { "directories.label": { $in: ["bfis"] } },
+        {
+          "service_at_locations.location.geometry": {
+            $exists: true,
+            $ne: null,
+          },
+        },
+      ],
+    }
+    expect(filters.removeVisibleNow(query)).toEqual(expectedQuery)
+  })
+
+  it("Should return the query as is if no visible_to query", () => {
+    const query = {
+      $text: { $search: "send" },
+      $and: [
+        {
+          $or: [
+            { visible_from: null },
+            { visible_from: { $lte: "2025-02-27T22:58:30.423Z" } },
+          ],
+        },
+        { "directories.label": { $in: ["bfis"] } },
+        {
+          "service_at_locations.location.geometry": {
+            $exists: true,
+            $ne: null,
+          },
+        },
+      ],
+    }
+    const expectedQuery = {
+      $text: { $search: "send" },
+      $and: [
+        { "directories.label": { $in: ["bfis"] } },
+        {
+          "service_at_locations.location.geometry": {
+            $exists: true,
+            $ne: null,
+          },
+        },
+      ],
+    }
+    expect(filters.removeVisibleNow(query)).toEqual(expectedQuery)
+  })
+
+  it("Should return the query as is if no $and", () => {
+    const query = {
+      $text: { $search: "send" },
+    }
+    const expectedQuery = {
+      $text: { $search: "send" },
+    }
+    expect(filters.removeVisibleNow(query)).toEqual(expectedQuery)
+  })
+
+  it("Should return other $or in the query", () => {
+    const query = {
+      $text: { $search: "send" },
+      $and: [
+        {
+          $or: [{ max_age: null }, { max_age: { $gte: 12 } }],
+        },
+        {
+          $or: [
+            { visible_from: null },
+            { visible_from: { $lte: "2025-02-27T22:58:30.423Z" } },
+          ],
+        },
+        { "directories.label": { $in: ["bfis"] } },
+        {
+          "service_at_locations.location.geometry": {
+            $exists: true,
+            $ne: null,
+          },
+        },
+      ],
+    }
+    const expectedQuery = {
+      $text: { $search: "send" },
+      $and: [
+        {
+          $or: [{ max_age: null }, { max_age: { $gte: 12 } }],
+        },
+        { "directories.label": { $in: ["bfis"] } },
+        {
+          "service_at_locations.location.geometry": {
+            $exists: true,
+            $ne: null,
+          },
+        },
+      ],
+    }
+    expect(filters.removeVisibleNow(query)).toEqual(expectedQuery)
+  })
+
+  it("Should not return empty $and", () => {
+    const query = {
+      $text: { $search: "send" },
+      $and: [
+        {
+          $or: [
+            { visible_from: null },
+            { visible_from: { $lte: "2025-02-27T22:58:30.423Z" } },
+          ],
+        },
+        {
+          $or: [
+            { visible_to: null },
+            { visible_to: { $gte: "2025-02-27T22:58:30.423Z" } },
+          ],
+        },
+      ],
+    }
+    const expectedQuery = {
+      $text: { $search: "send" },
+    }
+    expect(filters.removeVisibleNow(query)).toEqual(expectedQuery)
+  })
+})

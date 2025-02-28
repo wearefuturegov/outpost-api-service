@@ -1,7 +1,9 @@
 const { db } = require("../db")
+const { ObjectId } = require("mongodb")
 const logger = require("../../utils/logger")
 const filters = require("./filters")
 const queries = require("./queries")
+const caching = require("./caching")
 
 module.exports = {
   /**
@@ -60,11 +62,34 @@ module.exports = {
       logger.debug(keyword_query)
       logger.debug(JSON.stringify(keyword_query))
 
+      const keyword_query_copy = JSON.parse(JSON.stringify(keyword_query))
+      const cacheKey = `filterLocationKeywords_${JSON.stringify(
+        filters.removeVisibleNow(keyword_query_copy)
+      )}`
+      if (caching.enabled) {
+        const cachedData = await caching.getCachedData(cacheKey)
+        if (cachedData) {
+          query._id = {
+            $in: cachedData.map(id => ObjectId.createFromHexString(id)),
+          }
+          logger.info(`Using cached results for filterLocationKeywords query`)
+          return query
+        }
+      }
+
       const docs = await Service.find(keyword_query)
         .project({ _id: 1 })
         .limit(1000)
         .toArray()
+
       query._id = { $in: docs.map(doc => doc._id) }
+
+      if (caching.enabled) {
+        const ids = docs.map(doc => doc._id.toString())
+        await caching.setCachedData(cacheKey, ids, {
+          EX: 6 * 60 * 60, // Cache for 6 hours
+        })
+      }
     }
     return query
   },
