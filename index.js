@@ -8,6 +8,7 @@ const cors = require("cors")
 const morganMiddleware = require("./middleware/morgan.middleware")
 const logger = require("./utils/logger")
 const { connect } = require("./src/db")
+const cache = require("./src/cache")
 const routes = require("./src/routes/routes")
 
 const server = express()
@@ -28,6 +29,15 @@ connect(() =>
 )
 
 /**
+ * Create the initial Redis connection here
+ */
+if (process.env.REDIS_URL) {
+  cache.connect(() => {
+    logger.info("🌵 Redis connection established")
+  })
+}
+
+/**
  * Settings & middleware
  */
 server.set("trust proxy", 1)
@@ -39,15 +49,22 @@ if (!isDevelopment) {
   }
 }
 
+server.use(cors())
+server.use(morganMiddleware)
+
 server.use(
   rateLimit({
     windowMs: 1 * 60 * 1000, // 1 minute
-    max: 1000, // limit each IP to 1000 requests per windowMs
+    max: process.env.RATE_LIMIT ?? 100, // limit each IP to 100 requests per 1-minute window.
+    message: "Too many requests from this IP, please try again after a minute",
+    standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
+    legacyHeaders: false, // Disable the `X-RateLimit-*` headers
+    handler: (req, res, next, options) =>
+      res.status(options.statusCode).json({
+        error: options.message,
+      }),
   })
 )
-
-server.use(cors())
-server.use(morganMiddleware)
 
 /**
  * Swagger
