@@ -21,7 +21,7 @@ module.exports = {
 
     try {
       await cache.connect()
-      logger.info(`Connected to Redis at ${uri}`)
+      logger.info(`Connected to Redis`)
       cb(cache)
     } catch (err) {
       logger.error("Unable to connect to Redis", err)
